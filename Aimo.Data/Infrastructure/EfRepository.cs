@@ -23,9 +23,9 @@ internal partial class EfRepository : IRepository
     protected IQueryable<TEntity> AsNoTracking<TEntity>() where TEntity : Entity => EntitySet<TEntity>().AsNoTracking();
     protected IQueryable<TEntity> Table<TEntity>() where TEntity : Entity => EntitySet<TEntity>();
 
-    public virtual async Task<TEntity?> GetByIdAsync<TEntity>(object id, CancellationToken ct = default)
+    public virtual async Task<TEntity?> GetByIdAsync<TEntity>(int id, CancellationToken ct = default)
         where TEntity : Entity =>
-        (await EntitySet<TEntity>().FindAsync(id, ct))!;
+        (await EntitySet<TEntity>().FindAsync(new object[]{id}, ct))!;
 
     public virtual async Task<TEntity[]> FindBySpecAsync<TEntity>(Specification<TEntity> spec,
         bool explicitControl = false) where TEntity : Entity

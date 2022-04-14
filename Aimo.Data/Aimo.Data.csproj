@@ -23,4 +23,16 @@
     <ProjectReference Include="..\Aimo.Domain\Aimo.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Issues\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Issues\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Issues\**" />
+  </ItemGroup>
+
 </Project>

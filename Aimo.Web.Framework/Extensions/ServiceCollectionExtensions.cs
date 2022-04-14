@@ -4,6 +4,7 @@ using Aimo.Core.Infrastructure;
 using Aimo.Data.Infrastructure;
 using Aimo.Domain.Infrastructure;
 using Aimo.Domain.Labels;
+using Aimo.Domain.WorkContext;
 using Aimo.Web.Framework.Infrastructure;
 using Autofac;
 using FirebaseAdmin;
@@ -66,26 +67,26 @@ public static class ServiceCollectionExtensions
         #region Firebase
 
         //TODO: move all string and json to app setting file
-                var json = @"{
-            ""type"": ""service_account"",
-            ""project_id"": ""mash-app-bb418"",
-            ""private_key_id"": ""235b46d100be89981bd72b404c31453500aea9c9"",
-            ""private_key"": ""-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDDWa1GwXdBndNE\nh1E5TNoHB7iz7jfULKyJ6t1VDSxTSNNqS2jHOf/45ZaDuLNfSRKZvXmBZZ5M1nhO\nuCdtoJA2iOEsdPpfiqbLRwntnRiboanmRaidf+hNRngVKmCp6l90W00FAmB0sY+b\nsqhcehgt2ud0rYqFxT5S1QbUJMvUmmAiVLDeqfKqb7jSczQ3GKw/5fuwqGkgbuSD\npz1Kjx6cMFkDCPGYb5WjvtzmFgURNhdWwZfxUZX3zu9mFu1ZqGMrbV0CUleA0wOK\nAdS1OCM650eViBD5BVxtVmDMzOYBjvsFkaetEO6K4qhsswU/YAasfSb11aWYn7pq\nfYU/Sr3DAgMBAAECggEAUKXFE2DrivtNLQ1wSuefWyek6SN/iOiokoeTuHknw3pd\nTZS0PQuE0Yx3BwpJgxz3wOCoOPNq1u3z3QvJu0h+QQVhcKkadDcZhPJe9unULuwe\n6CH56ovTq5NcH+DO51cK8U6ADYFdsM9dKjonp4YAVW36AAFlHrS/dhLcLtjCDZK0\nf5ETjAqmw1twA9m0yHMTrmuVUZsOQRDqTC+tJ4uUKaADdXkNgPwbt8SbE7O3LqJ0\nYRbw2YhB3B+woZ6KGPrjRV3yXBA5ZQlNYpe/ij6JIv/fgYo7zmsugsl2V5fwCbAW\nuRaVJKyX08od92bGI6bxy6heNdPUElYlLL3UuD/8gQKBgQD2E8eg2XGXc16wt2YG\n0S1rHhiiTICBpZz/hshw9a7MM78ow+xUgbYE35f7rJGVhidBJkAjplO3QZ092bSk\ny3znBzNfi/38fdtzM6PJvhkcM36fuu+sEAsmrbZap4bH4CFz8DgoKI1LBXbjuGIb\nRDEOEBMOPtNBCe/0LwM7OqBcJQKBgQDLOj/5yxqBiRlTgSXFrP9tBVkL6ANE7IV8\njmmvf8nOMg3AxZQu7vhFo+ceJ/exEpypCrPZQ/ELogtsMxJj4r/h33vsQq5heLkE\nVzokrsZut2PJmbVVsHFh+TqobOXC+oT9O1+4ya7RY33EYyBXVlkBhLOUHVRaNFyX\nH3ExIf2ZxwKBgFGotrJV9jAABQg3lA/nEl9dmWciY/Kh9ruFCrcRkHQLKABrI93X\nPYPYfyLxXU51OkmQW/B4nYdOqtN/j0awkD5KUW3/ksVbLpvIIy4re0G0hOyUqDw9\nBrZLJxxmQ3/IjNFgggIxktG2eoGPCl9p/a1hADHV/1yx44Lwpu3cwqJRAoGAGHEX\nBKnitDWS8DIWIuIdjjUYcpAi5IU1wLc4Cr1pvfzTHp4kpkhjX6zIvR29cnR0lvgM\njVLYiLeifA7gZVb+EOJZ+x5B7sMgLV94RLUodGRmAfcUkgu4dzoMTfla4MpUeEhN\nyOGovtIibB4n45kk90PIfUXRwU+O2zYS3P/jij0CgYASxwqv3ab99on6cQonwzzi\nFSjmI/rkzs09uCgJWW4eNrSWaGp5+sDwBlmn4+xwjiS5OGRYQETAO06m7Qo2cwin\nInZEotXpsiC+PAu/M9Ud31SQjk2yvHcqZZ9jmNZO/3EN6xctcgi5pUNeVeMBQQDE\nmFnyxTFnyvVnj1krvReWBg==\n-----END PRIVATE KEY-----\n"",
-            ""client_email"": ""firebase-adminsdk-rgl4t@mash-app-bb418.iam.gserviceaccount.com"",
-            ""client_id"": ""103136159789760884330"",
-            ""auth_uri"": ""https://accounts.google.com/o/oauth2/auth"",
-            ""token_uri"": ""https://oauth2.googleapis.com/token"",
-            ""auth_provider_x509_cert_url"": ""https://www.googleapis.com/oauth2/v1/certs"",
-            ""client_x509_cert_url"": ""https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-rgl4t%40mash-app-bb418.iam.gserviceaccount.com""
-          }";
+        var json = @"{
+              ""type"": ""service_account"",
+              ""project_id"": ""mash-app-e87b2"",
+              ""private_key_id"": ""980a1ab1adbbc2e8e24399fa8a2e60da74746760"",
+              ""private_key"": ""-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDwAa43n91iVyaY\nKzmlM0Flk8kd4z5t4WFqOH02QM9N+UpZ1c5uZxtAOqm1Pwf4yOBMzSbbIVg1Go29\nIIESE+vlvJ83CaeuyZasqB8LGt4ImJvq1pMkDi1VZEfSA9sjUP60wQLHgrU0TV0/\nNNMHskKV8QIFJUsNlowXj6mEjlu70z3V2D53Ua+mAitkZYJD58Rz3Np465Fy/qVW\nhk+6XicsXsqA2nRLttDm49x3qiElYn223dlp6HuOVOtPsTufGqj4lIJhckhsGv8l\n43rGUVXAFBvclU4+teov+EtulB59ORM7HKY07zFU3203NerCCWAxKVeTD7OOgQO4\nsnfMSNpbAgMBAAECggEAFarJLBtiFJkykkVAuIHGkyGC5BBaV/gjX8AGycmTDYKG\nbFLJhp0HUEabgJHWqeaUnUpeCiVZ/b1Oc3cGP/gNcVmUdBcKjNSFJkQtPUbpKZSB\navOBKB2hiRZ7B2Iyu975h57vHczWiAi99NFThdvZeAjgek9yFaF0N0JQdveVH4EX\nSjV1ymw0+N1S4DsJBC+8ysbnqR7ERp5lb4P3HOyaig7Ov0Uo/n+auF6MQtSOwvy+\nzJzgQI6XJFhQhxY43lZHiwuc+PfB75dlROALT94MKyv8tREbkboPBMJUrZHlZUAP\n2o+ZjhXTkGoalwPCk2wKaSzm2k/t7YXz/PCAZqnVGQKBgQD/8ucJQ6KXyXLoYM/1\nbIAHCxU8J+1jPW/DxlEQvvBSrAaueiQI1dY8UT5LaHc/jECIlNBkSrfaVculNo80\nUpHkaSUKnLweA6n+oLtCwoYgRcOi76qyzm9emk62ukA4cDLCPd+gSgeZ3fvAvwu1\nSw8zifXNNamMHyttf1gipUO7GQKBgQDwDfZVz12DrzN6atldBRCCx4ereBFaZEJm\nrwUJ+4ypI5Ua9ngZ6drnGW6WhDolfCnzK6EIG+L/NBphnxUX0zlEO4fIvhTdF9bB\nNMWOy1WEIYqnDDUyXg3Jnk0TKW59I6f21VMr9uq44RBTssHiQDy1HRho4xvwB/3s\ndqTDDFAjkwKBgE/RmodjFlOruTAK8Q+ilJKdvDOUaA2o3S/6qtFEGoJNr4+9+3rd\n5P/OflTZ8UZaIM33Sr3cJ1Xpp6aQSzyP+3t15t1WX7wkfGEyEvQQ4e8ykn4/q8Yz\nZrvj92Q41UpEgy/cR98e9xvfBGHpsmcJT2ZNQeCLOaK/HbX6Hqw/Sc4RAoGBALYP\nYMwjwSCmN7yYXNIXjTYibdq17TNI5rNJ+eBgT4XX3rXcR6ofmk27FAxDrHXRfV9X\nr4Ge5MH4mil/pVe0crI1E/5Daz9jXRSbGVn7DJhxd97Je27/tiU7Uek+evWdnT2u\n/K1TTyF4UBGqeTFG1sPllSW3WPDqnsJAGSV0qTLRAoGBAKDV1tvwNsVE755AiY5i\nrdiytNf1+INc/w0NNPg59gyuaZgcJMgeWZyh7XuEee3sSyzVlSZKTVDovL+oN+qp\nbh+3GfW5dSXZulQMAiy5MIena+TOLJS6A+XEamGQulYhJwdRuNGPK9HxlNqPLsjQ\n9O9BUGv9BFWUFn+rAdKYdj+8\n-----END PRIVATE KEY-----\n"",
+              ""client_email"": ""firebase-adminsdk-4z8p1@mash-app-e87b2.iam.gserviceaccount.com"",
+              ""client_id"": ""105550833954873815224"",
+              ""auth_uri"": ""https://accounts.google.com/o/oauth2/auth"",
+              ""token_uri"": ""https://oauth2.googleapis.com/token"",
+              ""auth_provider_x509_cert_url"": ""https://www.googleapis.com/oauth2/v1/certs"",
+              ""client_x509_cert_url"": ""https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-4z8p1%40mash-app-e87b2.iam.gserviceaccount.com""
+            }";
 
         FirebaseApp.Create(new AppOptions()
         {
             Credential = GoogleCredential.FromJson(json)
         });
 
-        var firebaseAuthorityUrl = "https://accounts.google.com/o/oauth2/auth";
-        var firebaseAppId = "mash-app-bb418";
+        const string firebaseAuthorityUrl = "https://accounts.google.com/o/oauth2/auth";
+        const string firebaseAppId = "mash-app-e87b2";
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
         {
@@ -110,6 +111,8 @@ public static class ServiceCollectionExtensions
 
         services.AddDataProject(builder.Configuration);
         services.AddApplicationProject(builder.Configuration);
+
+        services.AddScoped<IWorkContext, WebWorkContext>(); //TODO: move to framework dependency injection class
 
         //create engine and configure service provider
         EngineContext.Create(new AppEngine()).ConfigureServices(services, builder.Configuration);

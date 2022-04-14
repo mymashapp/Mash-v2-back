@@ -2,6 +2,6 @@
 {
     public class PictureDto : Dto
     {
-        public byte[] Picture { get; set; }
+        public string Picture { get; set; }
     }
 }

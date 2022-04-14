@@ -20,7 +20,7 @@ internal partial class EfRepository<TEntity> : EfRepository, IRepository<TEntity
     protected IQueryable<TEntity> AsNoTracking => EntitySet.AsNoTracking();
     protected IQueryable<TEntity> Table => EntitySet;
 
-    public virtual async Task<TEntity?> GetByIdAsync(object id, CancellationToken ct = default) =>
+    public virtual async Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default) =>
         (await base.GetByIdAsync<TEntity>(id, ct))!;
 
     public virtual async Task<TEntity[]> FindBySpecAsync(Specification<TEntity> spec,
@@ -39,7 +39,7 @@ internal partial class EfRepository<TEntity> : EfRepository, IRepository<TEntity
         await base.ToListResultAsync<TEntity, TDto, TFilter>(filter);
 
 
-    public virtual async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null) =>
+    public virtual async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null) =>
         await base.FirstOrDefaultAsync(predicate);
 
     public virtual async Task AddAsync(TEntity entity, CancellationToken ct = default) =>

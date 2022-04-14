@@ -30,4 +30,8 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\api\specification.json" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Controllers\IssueController.cs" />
+    </ItemGroup>
 </Project>

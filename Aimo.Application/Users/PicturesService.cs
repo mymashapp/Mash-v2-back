@@ -5,32 +5,30 @@ using Aimo.Domain.Users;
 
 namespace Aimo.Application.Users
 {
-    public partial class PicturesService: IPicturesService
+    public partial class PicturesService : IPicturesService
     {
-        private readonly IRepository<Pictures> _picturesRepository;
+        private readonly IRepository<Picture> _picturesRepository;
 
-        public PicturesService(IRepository<Pictures> picturesRepository)
+        public PicturesService(IRepository<Picture> picturesRepository)
         {
             _picturesRepository = picturesRepository;
         }
+
         public async Task<Result<PictureDto>> InsertPictureAsync(PictureDto dto)
         {
-            var result = Result.Create(dto);
-
-            var entity = dto.Map<Pictures>();
+            var entity = dto.Map<Picture>();
             await _picturesRepository.AddAsync(entity);
-            var affected = await _picturesRepository.CommitAsync();
-            result.SetData(entity.MapTo(dto), affected).Success();
-
-            return result;
+            await _picturesRepository.CommitAsync();
+            return Result.Create(entity.MapTo(dto)).Success();
         }
 
         public async Task<Result<PictureDto>> UpdatePictureAsync(PictureDto dto)
         {
             var result = Result.Create(dto);
-            var entity = dto.Map<Pictures>();
+            var entity = dto.Map<Picture>();
             _picturesRepository.Update(entity);
             var affected = await _picturesRepository.CommitAsync();
+
             return result.SetData(entity.MapTo(dto), affected).Success();
         }
     }

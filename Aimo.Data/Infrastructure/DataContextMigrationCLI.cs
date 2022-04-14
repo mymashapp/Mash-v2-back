@@ -17,7 +17,7 @@ public partial class EfDataContext : IDesignTimeDbContextFactory<EfDataContext>
 
     public EfDataContext CreateDbContext(string[] args) =>
         new(new DbContextOptionsBuilder<EfDataContext>()
-            .UseSqlServer("Server=.;Database=IssueTracker;User Id=sa;Password=admin@123").Options);
+            .UseSqlServer("Server=mashv2.cydqrnrxyhdw.us-east-2.rds.amazonaws.com;Database=MashAppDB;User Id=admin;Password=mashv2pwd").Options);
 }
 
 #endregion

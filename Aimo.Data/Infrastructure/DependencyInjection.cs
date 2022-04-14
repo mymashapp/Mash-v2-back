@@ -25,8 +25,9 @@ public static class DependencyInjection
                 options.UseInMemoryDatabase("AppDataContextDb"));
         }
 
-        //            services.AddDbContext<DataContext>(optionsBuilder =>optionsBuilder.UseSqlServer());
-        services.AddDbContextPool<EfDataContext>(options =>
+        //services.AddDbContext<DataContext>(optionsBuilder =>optionsBuilder.UseSqlServer());
+        //TODO: use pooled
+        services.AddDbContext<EfDataContext>(options =>
         {
             options.UseSqlServer(
                 config.GetConnectionString("AppDataContext"),

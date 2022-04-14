@@ -5,9 +5,11 @@ namespace Aimo.Core;
 
 public static class NullExtensions
 {
+    [Obsolete("Use is null")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNull([NotNullWhen(false)] this object? obj) => obj is null;
 
+    [Obsolete("Use is not null")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotNull([NotNullWhen(true)] this object? obj) => obj is not null;
 

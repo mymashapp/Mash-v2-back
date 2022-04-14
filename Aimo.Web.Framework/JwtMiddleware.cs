@@ -21,6 +21,15 @@ public class JwtMiddleware
 
         try
         {
+            /*
+            #region TODO:REMOVE
+
+            context.Items[WebFrameworkDefaults.UserUniqueId] ="hJOhGjn4yvSsy7mVxPDA2uljUun2";
+            return;
+           
+
+            #endregion
+             */
             if (token != null)
                 await AttachUserToContextAsync(context, userService, workContext, token);
         }
@@ -34,8 +43,9 @@ public class JwtMiddleware
 
     private async Task AttachUserToContextAsync(HttpContext context, IUserService userService, IWorkContext workContext, string token)
     {
+        
+        
         var decodedToken = await FirebaseAuth.GetAuth(FirebaseApp.DefaultInstance).VerifyIdTokenAsync(token);
-        //#todo: bind user to context 
         context.Items[WebFrameworkDefaults.UserUniqueId] = decodedToken.Uid;
         var userResult = await userService.GetOrCreateUserByUidAsync(decodedToken.Uid);
         if (userResult.IsSucceeded)

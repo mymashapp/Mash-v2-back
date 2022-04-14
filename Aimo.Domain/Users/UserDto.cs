@@ -11,6 +11,7 @@
         public string Bio { get; set; }
         public bool IsNew { get; set; }
         public string ProfilePictureUrl { get; set; }
+        
         public List<UserInterestDto> UserInterests { get; set; } = new();
         public UserPreferencesDto UserPreferences { get; set; } = new();
         public List<UserPhotoDto> UserPhotos { get; set; } = new();

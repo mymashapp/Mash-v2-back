@@ -6,7 +6,7 @@ namespace Aimo.Domain.Data;
 
 public partial interface IRepository
 {
-    Task<TEntity?> GetByIdAsync<TEntity>(object id, CancellationToken ct = default) where TEntity : Entity;
+    Task<TEntity?> GetByIdAsync<TEntity>(int id, CancellationToken ct = default) where TEntity : Entity;
 
     Task<TEntity> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>>? predicate = null)
         where TEntity : Entity;

@@ -3,31 +3,33 @@ using Aimo.Core;
 using Aimo.Domain.Users;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Aimo.Web.Controllers
+namespace Aimo.Web.Controllers;
+
+[ApiController]
+public class UserController : ApiBaseController
 {
-    public class UserController : ApiBaseController
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
     {
-        private readonly IUserService _userService;
+        _userService = userService;
+    }
 
-        public UserController(IUserService userService)
-        {
-            _userService = userService;
-        }
+    [HttpPut]
+    public async Task<IActionResult> Update(UserDto dto)
+    {
+        return Result(await _userService.Update(dto));
+    }
 
-        [HttpPost]
-        public async Task<Result<UserDto>> SaveUserDetail(UserDto dto)
-        {
-            return await _userService.Update(dto);
-        }
+    [HttpGet]
+    public async Task<IActionResult> GetUserById(int id)
+    {
+        return Result(await _userService.GetById(id));
+    }
 
-        public async Task<Result<UserDto>> GetUserById(int id)
-        {
-            return await _userService.GetById(id);
-        }
-
-        public async Task<Result<UserDto>> GetUserById(string uid)
-        {
-            return await _userService.GetOrCreateUserByUidAsync(uid);
-        }
+    [HttpGet]
+    public async Task<IActionResult> GetUserByUid(string uid)
+    {
+        return Result(await _userService.GetOrCreateUserByUidAsync(uid));
     }
 }

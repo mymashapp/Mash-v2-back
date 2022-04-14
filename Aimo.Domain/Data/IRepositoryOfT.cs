@@ -6,8 +6,8 @@ namespace Aimo.Domain.Data;
 
 public partial interface IRepository<TEntity> where TEntity : new()
 {
-    Task<TEntity?> GetByIdAsync(object id, CancellationToken ct = default);
-    Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null);
+    Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default);
+    Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null);
 
     Task<TEntity[]> FindBySpecAsync(Specification<TEntity> spec, bool explicitControl = false);
     Task<TEntity[]> Find(Expression<Func<TEntity, bool>>? predicate = null);
