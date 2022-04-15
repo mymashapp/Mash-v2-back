@@ -11,16 +11,23 @@ internal class UserMapperProfile : Profile, IOrderedMapperProfile
 
     public UserMapperProfile()
     {
-        CreateMap<User, UserViewDto>().ReverseMap();
-        CreateMap<User, UserSaveDto>().ReverseMap();
-           
+        CreateMap<User, UserDto>()
+            .ForMember(d => d.PicturesBase64, opt => opt.Ignore())
+            .ForMember(d => d.Pictures, e => e.MapFrom(x => x.Pictures))
+            .ReverseMap()
+            .ForMember(e => e.Pictures, opt => opt.Ignore());
+
         CreateMap<Interest, IdNameDto>().ReverseMap();
 
-        CreateMap<Interest, UserInterestDto>().ReverseMap();
-        CreateMap<Picture, UserPhotoViewDto>().ReverseMap();
+        CreateMap<Interest, UserInterestDto>()
+            .ForMember(d => d.InterestName, e => e.MapFrom(x => x.Name))
+            .ReverseMap();
+        CreateMap<Picture, UserPhotoDto>().ReverseMap();
         CreateMap<Picture, PictureDto>()
-            .ForMember(d => d.Picture, e => e.MapFrom(x => Convert.ToBase64String(x.Binary)))
-            .ReverseMap()
-            .ForMember(e => e.Binary, d => d.MapFrom(x => Convert.FromBase64String(x.Picture)));
+            // .ForMember(d => d.Picture, e => e.MapFrom(x => Convert.ToBase64String(x.Binary)))
+            .ReverseMap();
+        //.ForMember(e => e.Binary, d => d.MapFrom(x => Convert.FromBase64String(x.Picture)));
+        
+        
     }
 }

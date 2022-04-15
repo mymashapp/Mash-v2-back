@@ -2,6 +2,8 @@
 {
     public class PictureDto : Dto
     {
-        public string Picture { get; set; }
+        public int UserId { get; set; }
+        public string PictureBase64 { get; set; }
+        
     }
 }

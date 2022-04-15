@@ -21,11 +21,11 @@ COPY Aimo.Domain/. ./Aimo.Domain/
 COPY Aimo.Web/. ./Aimo.Web/
 COPY Aimo.Web.Framework ./Aimo.Web.Framework/
 COPY Firebase/. ./Firebase
-COPY Users/. ./Users/
 RUN dotnet publish Aimo.Web/ -c Release -o out 
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
 COPY --from=build-env /app/out .
+EXPOSE 80
 ENTRYPOINT ["dotnet", "Aimo.Web.dll"]

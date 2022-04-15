@@ -9,7 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-
+.DS_Store
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 #Rider
 .idea
+/Aimo.Web/wwwroot/Upload/UserPicture/

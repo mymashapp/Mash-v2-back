@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Aimo.Application.Users
 {
-    public partial class UserDtoValidator:  Validator<UserSaveDto>
+    public partial class UserDtoValidator:  Validator<UserDto>
     {
         public UserDtoValidator()
         {

@@ -111,7 +111,8 @@ public static class ServiceCollectionExtensions
 
         services.AddDataProject(builder.Configuration);
         services.AddApplicationProject(builder.Configuration);
-
+        
+        services.AddScoped<IAppFileProvider, DefaultFileProvider>();
         services.AddScoped<IWorkContext, WebWorkContext>(); //TODO: move to framework dependency injection class
 
         //create engine and configure service provider

@@ -15,16 +15,16 @@ public class UserController : ApiBaseController
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update(UserSaveDto viewDto)
+    public async Task<IActionResult> Update(UserDto dto)
     {
-        return Result(await _userService.Update(viewDto));
+        return Result(await _userService.Update(dto));
     }
 
-    [HttpGet]
+    /*[HttpGet]
     public async Task<IActionResult> GetUserById(int id)
     {
         return Result(await _userService.GetById(id));
-    }
+    }*/
     
     [HttpGet]
     public async Task<IActionResult> GetAllInterests()

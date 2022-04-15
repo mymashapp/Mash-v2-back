@@ -39,15 +39,15 @@ public static class ApplicationBuilderExtensions
 
         app.UseStaticFiles();
 
-#if !DEBUG
+/*#if !DEBUG
         app.UseResponseCompression(); //TODO: is it needed?
-#endif
+#endif*/
 
-        if (env.IsDevelopment())
-        {
+        /*if (env.IsDevelopment())
+        {*/
             app.UseSwagger();
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Mash API V1"));
-        }
+        /*}*/
             
 
         app.UseRouting();

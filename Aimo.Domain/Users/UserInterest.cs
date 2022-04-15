@@ -6,6 +6,7 @@
         public int DisplayOrder { get; set; }
         public List<User> Users { get; set; }
     }
+    
     public partial class UserInterest : Entity
     {
         public int UserId { get; set; }

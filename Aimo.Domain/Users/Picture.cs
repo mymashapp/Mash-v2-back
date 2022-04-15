@@ -2,7 +2,7 @@
 {
     public partial class Picture : Entity
     {
-        public byte[] Binary { get; set; }
-        public List<User> Users { get; set; }
+        public int UserId { get; set; }
+        public string Url { get; set; }
     }
 }
