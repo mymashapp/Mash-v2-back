@@ -41,7 +41,7 @@ internal partial class EfRepository : IRepository
         where TEntity : Entity
     {
         IQueryable<TEntity> query = EntitySet<TEntity>();
-        if (predicate.IsNotNull()) query = query.Where(predicate);
+        if (predicate is not null) query = query.Where(predicate);
         return await query.ToArrayAsync();
     }
 
@@ -88,9 +88,9 @@ internal partial class EfRepository : IRepository
     {
         IQueryable<TEntity> query = EntitySet<TEntity>();
 
-        if (include.IsNotNull()) query = include(query);
+        if (include is not null) query = include(query);
 
-        if (predicate.IsNotNull()) query = query.Where(predicate);
+        if (predicate is not null) query = query.Where(predicate);
 
         if (isDeleted is not null && typeof(ISoftDeleteSupport).IsAssignableFrom(typeof(TEntity)))
             query = query.Where(x => ((ISoftDeleteSupport)x).IsDeleted == isDeleted);
@@ -98,7 +98,7 @@ internal partial class EfRepository : IRepository
         if (isActive is not null && typeof(IActiveInactiveSupport).IsAssignableFrom(typeof(TEntity)))
             query = query.Where(x => ((IActiveInactiveSupport)x).IsActive == isActive);
 
-        if (orderBy.IsNotNull()) query = query.OrderBy(orderBy, orderDirection);
+        if (orderBy is not null) query = query.OrderBy(orderBy, orderDirection);
 
         if (skip.HasValue) query = query.Skip(skip.Value);
 

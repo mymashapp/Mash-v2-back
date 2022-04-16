@@ -1,4 +1,4 @@
-﻿namespace Aimo.Domain.Users
+﻿namespace Aimo.Domain.Users.Entities
 {
     public partial class User : AuditableEntity, ISoftDeleteSupport, IActiveInactiveSupport
     {
@@ -6,10 +6,8 @@
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public int ProfilePictureId { get; set; }
         public Gender? Gender { get; set; }
         public string? Bio { get; set; }
-
 
         public int PreferenceAgeTo { get; set; }
         public int PreferenceAgeFrom { get; set; }
@@ -20,7 +18,7 @@
         public bool IsActive { get; set; }
         public bool IsNew { get; set; }
 
-        public List<Interest> Interests { get; set; } = new();
-        public List<Picture> Pictures { get; set; } = new();
+        public List<Interest> Interests { get;  init; } = new();
+        public List<Picture> Pictures { get; init; } = new();
     }
 }

@@ -3,7 +3,18 @@ using FluentValidation;
 
 namespace Aimo.Application.Users
 {
-    public partial class UserDtoValidator:  Validator<UserDto>
+    public partial class PictureDtoCollectionValidator : Validator<PictureDto[]>
+    {
+        public PictureDtoCollectionValidator()
+        {
+            RuleFor(d => d)
+                .Must(v => !v.GroupBy(g => g.PictureType)
+                    .Any(x => x.Count() > 1)).WithMessage(L["Validation.AllowedOnlyOnePicturePerType"]);
+        }
+    }
+    
+
+    public partial class UserDtoValidator : Validator<UserDto>
     {
         public UserDtoValidator()
         {
@@ -11,6 +22,8 @@ namespace Aimo.Application.Users
             RuleFor(d => d.Email).NotEmpty().WithMessage(L["Validation.Required"]);
             RuleFor(d => d.DateOfBirth).NotEmpty().WithMessage(L["Validation.Required"]);
             RuleFor(d => d.Gender).NotEmpty().WithMessage(L["Validation.Required"]);
+            RuleFor(d => d.UploadedPictures).SetValidator(new PictureDtoCollectionValidator());
+
         }
     }
 }

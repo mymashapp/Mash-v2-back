@@ -6,7 +6,8 @@ namespace Aimo.Core;
 public partial record Result
 {
     #region Properties
-    public ConcurrentDictionary<string, string> Errors = new();
+
+    public ConcurrentDictionary<string, string> Errors { get; set; } = new();
 
     public bool IsSucceeded { get; set; }
     public long Id { get; set; }
@@ -48,14 +49,6 @@ public partial record Result
         AdditionalData = additionalData!;
         return this;
     }
-
-    /*public Result SetPaging(int page, int size, int total)
-    {
-        PageSize = size == 0 ? AimoDefaults.DefaultPageSize : size;
-        PageIndex = page;
-        PageTotal = total;
-        return this;
-    }*/
 
     public virtual Result From(Result other)
     {

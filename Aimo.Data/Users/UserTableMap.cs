@@ -1,5 +1,5 @@
 ﻿using Aimo.Data.Infrastructure;
-using Aimo.Domain.Users;
+using Aimo.Domain.Users.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Aimo.Data.Users

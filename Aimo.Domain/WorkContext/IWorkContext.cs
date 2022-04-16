@@ -1,4 +1,4 @@
-﻿using Aimo.Domain.Users;
+﻿using Aimo.Domain.Users.Entities;
 
 namespace Aimo.Domain.WorkContext
 {

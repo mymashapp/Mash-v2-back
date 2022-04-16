@@ -53,7 +53,7 @@ public static class DtoLocalization
                 continue;
             }
 
-            if (propValue.IsNotNull()) continue;
+            if (propValue is not null) continue;
 
             #endregion
 
@@ -62,7 +62,7 @@ public static class DtoLocalization
             var otherLangPropInfo =
                 properties?.FirstOrDefault(w => w.Name.ToLower().Equals(otherPropName.ToLower()));
             var coalesceValue = otherLangPropInfo?.GetValue(dto, null);
-            if (coalesceValue.IsNotNull()) propInfo?.SetValue(dto, coalesceValue, default);
+            if (coalesceValue is not null) propInfo?.SetValue(dto, coalesceValue, default);
         }
 
         return dto;
@@ -123,7 +123,7 @@ public static class DtoLocalization
                 continue;
             }
 
-            if (propValue.IsNotNull()) continue;
+            if (propValue is not null) continue;
 
             #endregion
 
@@ -140,7 +140,7 @@ public static class DtoLocalization
                     w.Name.ToLower().Equals(fallbackPropName.ToLower()))
                 ?.GetValue(dto, null);
 
-            if (value.IsNotNull()) propInfo?.SetValue(dto, value, default);
+            if (value is not null) propInfo?.SetValue(dto, value, default);
         }
 
         return dto;

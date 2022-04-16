@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Aimo.Data.Infrastructure;
 using Aimo.Domain.Data;
-using Aimo.Domain.Users;
+using Aimo.Domain.Users.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aimo.Data.Users;

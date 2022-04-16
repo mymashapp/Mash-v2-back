@@ -1,6 +1,6 @@
 ﻿namespace Aimo.Domain.Users
 {
-    public partial class UserInterestDto: Dto
+    public partial class UserInterestDto
     {
         public int UserId { get; set; }
         public int InterestId { get; set; }

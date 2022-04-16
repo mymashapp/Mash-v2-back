@@ -1,5 +1,5 @@
 ﻿using Aimo.Domain.Data;
-using Aimo.Domain.Users;
+using Aimo.Domain.Users.Entities;
 using Aimo.Domain.WorkContext;
 using Microsoft.AspNetCore.Http;
 

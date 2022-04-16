@@ -1,6 +1,5 @@
 using Aimo.Application.Users;
-using Aimo.Domain.Infrastructure;
-using Aimo.Domain.Users;
+using Aimo.Domain.Users.Entities;
 using Aimo.Domain.WorkContext;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
