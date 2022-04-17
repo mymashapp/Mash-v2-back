@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Aimo.Application.Users
 {
-    public partial class PictureDtoCollectionValidator : Validator<PictureDto[]>
+    public partial class PictureDtoCollectionValidator : Validator<IEnumerable<PictureDto>>
     {
         public PictureDtoCollectionValidator()
         {
@@ -23,7 +23,6 @@ namespace Aimo.Application.Users
             RuleFor(d => d.DateOfBirth).NotEmpty().WithMessage(L["Validation.Required"]);
             RuleFor(d => d.Gender).NotEmpty().WithMessage(L["Validation.Required"]);
             RuleFor(d => d.UploadedPictures).SetValidator(new PictureDtoCollectionValidator());
-
         }
     }
 }

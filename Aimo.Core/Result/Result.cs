@@ -21,7 +21,12 @@ public partial record Result
     #endregion
 
    
-
+    public static Result Create(dynamic? data = default)
+    {
+        var result = new Result();
+        return data is null ? result : result.SetData(data);
+    }
+    
     #region Methods
 
     public virtual Result Failure(string message)

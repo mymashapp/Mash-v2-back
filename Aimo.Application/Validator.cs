@@ -28,7 +28,7 @@ public abstract class Validator<TInstance> : AbstractValidator<TInstance>
     {
         if (context.InstanceToValidate is null)
         {
-            result.Errors.Add(new ValidationFailure("", L["Validation.NullObject"]));
+            result.Errors.Add(new ValidationFailure("", L["Validation.NullOrEmptyObject"]));
             return false;
         }
 
@@ -68,6 +68,18 @@ public abstract class Validator<TInstance> : AbstractValidator<TInstance>
 
 public static class ValidatorExtension
 {
+    //TODO: change string to lambda expression
+    public static async Task<Result<TInstance>> GetValidationResultFor<TInstance>(this Task<Result<TInstance>> resultTask, string key) where TInstance : new()
+    {
+        var result = await resultTask;
+        var pairs = result.Errors.Where(x =>
+            !string.Equals(x.Key, key, StringComparison.InvariantCultureIgnoreCase));
+        
+        foreach (var pair in pairs) result.Errors.TryRemove(pair);
+        
+        return result;
+    }
+
     public static async Task<Result<TInstance>> ValidateResultAsync<TInstance>(this Validator<TInstance> validator,
         TInstance instance) where TInstance : new()
     {
@@ -79,7 +91,7 @@ public static class ValidatorExtension
             return ret.Failure(results.Errors.First().ErrorMessage);
 
         //var L = EngineContext.Current.Resolve<ILocalizer<Validation>>();
-        var result = ret.Failure(validator.L["Validation.MandatoryMessage"]);
+        var result = ret.Failure(validator.L["Validation.CorrectAllValidationErrors"]);
 
         foreach (var validationFailure in results.Errors)
             result.Errors.AddOrUpdate(validationFailure.PropertyName, validationFailure.ErrorMessage,

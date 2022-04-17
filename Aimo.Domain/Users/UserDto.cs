@@ -24,7 +24,7 @@
 
         #region Save
         public int[] SelectedInterestIds { get; set; } = Array.Empty<int>();
-        public PictureDto[] UploadedPictures { get; set; } = Array.Empty<PictureDto>();
+        public ICollection<PictureDto> UploadedPictures { get; set; } = Array.Empty<PictureDto>();
         #endregion
     }
 }

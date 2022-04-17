@@ -12,7 +12,6 @@ namespace Aimo.Application.Users
     {
         private readonly IUserRepository _userRepository;
         private readonly UserDtoValidator _userDtoValidator;
-        private readonly PictureDtoCollectionValidator _pictureDtoCollectionValidator;
         private readonly IRepository<Interest> _interestRepository;
         private readonly IPicturesService _picturesService;
 
@@ -20,7 +19,6 @@ namespace Aimo.Application.Users
         public UserService(
             IUserRepository userRepository,
             UserDtoValidator userDtoValidator,
-            PictureDtoCollectionValidator pictureDtoCollectionValidator,
             IRepository<Interest> interestRepository,
             IPicturesService picturesService)
         {
@@ -28,29 +26,46 @@ namespace Aimo.Application.Users
             _userDtoValidator = userDtoValidator;
             _interestRepository = interestRepository;
             _picturesService = picturesService;
-            _pictureDtoCollectionValidator = pictureDtoCollectionValidator;
         }
 
         #region Utilities
 
-        private async Task SaveUserPicturesAsync(User entity, PictureDto[] pictures)
+        private async Task<Result> SaveUserPicturesAsync(User entity, ICollection<PictureDto> pictures)
         {
-            if (pictures.Any())
+            var result = await _userDtoValidator
+                .ValidateResultAsync(new UserDto{UploadedPictures = pictures})
+                .GetValidationResultFor(nameof(UserDto.UploadedPictures));
+            
+            if (!result.IsSucceeded)
+                return result;
+
+            
+            if (!pictures.Any()) return result.Failure(ResultMessage.NullOrEmptyObject);
+            
+            entity.Pictures.RemoveAll(x => pictures.Select(p => p.PictureType).Contains(x.PictureType));
+                
+            foreach (var picture in pictures)
             {
-                entity.Pictures.Clear();
-                foreach (var picture in pictures)
+                var response = await _picturesService.InsertPictureAsync(new PictureDto
                 {
-                    await _picturesService.InsertPictureAsync(new PictureDto
-                    {
-                        UserId = entity.Id,
-                        PictureUrl = picture.PictureUrl,
-                        PictureType = picture.PictureType
-                    });
-                }
+                    UserId = entity.Id,
+                    PictureUrl = picture.PictureUrl,
+                    PictureType = picture.PictureType
+                });
+
+                if (response.IsSucceeded) continue;
+
+                result.Errors.GetOrAdd(
+                    $"{nameof(PictureDto.PictureUrl)}_{nameof(picture.PictureType)}_{picture.PictureType}",
+                    response.Message);
+                result.Failure(response.Message);
             }
+
+            return result.Success();
         }
 
         #endregion
+
         #region Methods
 
         public async Task<IdNameDto[]> GetAllInterests()
@@ -94,11 +109,10 @@ namespace Aimo.Application.Users
 
         public async Task<Result> UpdatePictures(PictureDto[] dto)
         {
-            
-            var result = Result.Create(0);
+            var result = Result.Create();
 
             if (!dto.Any())
-                return result.Failure(ResultMessage.NullObject);
+                return result.Failure(ResultMessage.NullOrEmptyObject);
 
             try
             {
@@ -106,13 +120,15 @@ namespace Aimo.Application.Users
                 if (entity is null)
                     return result.Failure(ResultMessage.NotFound);
 
-                await SaveUserPicturesAsync(entity, dto);
+                result = await SaveUserPicturesAsync(entity, dto);
+                
+                if (!result.IsSucceeded) return result;
             }
             catch (Exception e)
             {
                 return result.Failure(e.Message);
             }
-            
+
             return result.Success();
         }
 
@@ -151,7 +167,6 @@ namespace Aimo.Application.Users
             }
         }
 
-      
 
         public async Task<Result<bool>> Delete(params int[] ids)
         {
