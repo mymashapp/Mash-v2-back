@@ -1,12 +1,11 @@
-﻿using Aimo.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Aimo.Web.Controllers;
 
 [ApiController, /*AppAuthorize,*/ Route("api/[controller]/[action]")]
 public class ApiBaseController : ControllerBase
 {
-    /*protected async Task<IActionResult> ResultAsync(Task<Result> resultTask)
+    /*protected async Task<IActionResult> ResultAsync(ResultTask resultTask)
     {
         var result = await resultTask;
         return result.ThrowIfNull().IsSucceeded ? Ok(result) : BadRequest(result);

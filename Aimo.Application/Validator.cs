@@ -1,5 +1,4 @@
 #nullable disable
-using Aimo.Core;
 using Aimo.Domain.Infrastructure;
 using Aimo.Domain.Labels;
 using FluentValidation;
@@ -76,6 +75,8 @@ public static class ValidatorExtension
             !string.Equals(x.Key, key, StringComparison.InvariantCultureIgnoreCase));
         
         foreach (var pair in pairs) result.Errors.TryRemove(pair);
+
+        result.IsSucceeded = !result.Errors.Any();
         
         return result;
     }

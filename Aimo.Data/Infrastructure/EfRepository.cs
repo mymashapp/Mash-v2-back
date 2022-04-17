@@ -2,7 +2,6 @@
 using System.Data.Common;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
-using Aimo.Core;
 using Aimo.Core.Specifications;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;

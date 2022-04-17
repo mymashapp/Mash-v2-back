@@ -1,6 +1,5 @@
 ﻿#nullable disable
 using System.Reflection;
-using Aimo.Core;
 
 namespace Aimo.Data;
 

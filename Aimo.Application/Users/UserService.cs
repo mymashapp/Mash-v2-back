@@ -1,5 +1,4 @@
-﻿using Aimo.Core;
-using Aimo.Core.Specifications;
+﻿using Aimo.Core.Specifications;
 using Aimo.Data.Users;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;
@@ -30,7 +29,7 @@ namespace Aimo.Application.Users
 
         #region Utilities
 
-        private async Task<Result> SaveUserPicturesAsync(User entity, ICollection<PictureDto> pictures)
+        private async ResultTask SaveUserPicturesAsync(User entity, ICollection<PictureDto> pictures)
         {
             var result = await _userDtoValidator
                 .ValidateResultAsync(new UserDto{UploadedPictures = pictures})
@@ -82,7 +81,7 @@ namespace Aimo.Application.Users
                 : Result.Create(await PreparePicture(entity.Map<UserDto>())).Success();
         }*/
 
-        public async Task<Result> GetOrCreateUserByUidAsync(string uid)
+        public async ResultTask GetOrCreateUserByUidAsync(string uid)
         {
             var entity = await _userRepository.FirstOrDefaultAsync(x => x.Uid == uid);
 
@@ -107,7 +106,7 @@ namespace Aimo.Application.Users
             return Result.Create(dto).Success();
         }
 
-        public async Task<Result> UpdatePictures(PictureDto[] dto)
+        public async ResultTask UpdatePictures(PictureDto[] dto)
         {
             var result = Result.Create();
 
@@ -132,7 +131,7 @@ namespace Aimo.Application.Users
             return result.Success();
         }
 
-        public async Task<Result> Update(UserDto dto)
+        public async ResultTask Update(UserDto dto)
         {
             var result = await _userDtoValidator.ValidateResultAsync(dto);
             if (!result.IsSucceeded)
@@ -193,10 +192,9 @@ namespace Aimo.Application.Users
     public partial interface IUserService
     {
         //Task<Result<UserDto>> GetById(int id);
-
-        Task<Result> GetOrCreateUserByUidAsync(string uid);
-        Task<Result> UpdatePictures(PictureDto[] dto);
-        Task<Result> Update(UserDto viewDto);
+        ResultTask GetOrCreateUserByUidAsync(string uid);
+        ResultTask UpdatePictures(PictureDto[] dto);
+        ResultTask Update(UserDto viewDto);
         Task<Result<bool>> Delete(params int[] ids);
         Task<IdNameDto[]> GetAllInterests();
     }

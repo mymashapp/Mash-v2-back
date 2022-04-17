@@ -1,6 +1,5 @@
 ﻿using System.Data.Common;
 using System.Reflection;
-using Aimo.Core;
 using Aimo.Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

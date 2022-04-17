@@ -1,7 +1,6 @@
 #nullable disable
 #nullable enable annotations
 using System.Linq.Expressions;
-using Aimo.Core;
 using Aimo.Core.Specifications;
 using Aimo.Domain.Data;
 using Microsoft.EntityFrameworkCore;
@@ -91,3 +90,35 @@ internal partial class EfRepository<TEntity> : EfRepository, IRepository<TEntity
     protected virtual IQueryable<TEntity> FromSqlInterpolatedQueryable(FormattableString sql) =>
         base.FromSqlInterpolatedQueryable<TEntity>(sql);
 }
+
+
+/*internal partial class EfRepository<TEntity>
+{
+    public virtual async Task<ListResult<TEntity>> ToListResultAsync1<TFilter>(TFilter filter)
+        where TFilter : Filter =>
+        await base.ToListResultAsync<TEntity, TFilter>(filter);
+
+    public new virtual async Task<ListResult<TDto>> ToListResultAsync1<TDto>(TFilter filter)
+        where TDto : class, new()
+    {
+        var wrapper = new Wrapper<TFilter>(this);
+        return wrapper.ToListResultAsync1<TDto>(filter);
+    }
+
+    public partial class Wrapper<TFilter> where TFilter : Filter
+    {
+        private readonly EfRepository<TEntity> _repository;
+
+        public Wrapper(EfRepository<TEntity> repository)
+        {
+            _repository = repository;
+        }
+            
+        public async Task<ListResult<TDto>> ToListResultAsync1<TDto>(TFilter filter)
+            where TDto : class, new()
+        {
+            return await _repository.ToListResultAsync<TEntity, TDto, TFilter>(filter);
+        }
+    } 
+    
+}*/

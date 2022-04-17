@@ -1,4 +1,3 @@
-using Aimo.Core;
 using Aimo.Domain.Infrastructure;
 
 namespace Aimo.Application;

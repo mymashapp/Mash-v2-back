@@ -1,5 +1,4 @@
-﻿using Aimo.Core;
-using Aimo.Core.Infrastructure;
+﻿using Aimo.Core.Infrastructure;
 
 namespace Aimo.Data;
 

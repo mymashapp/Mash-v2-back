@@ -1,4 +1,3 @@
-using Aimo.Core;
 using Aimo.Core.Infrastructure;
 using Aimo.Domain.Users;
 using Aimo.Domain.Users.Entities;
@@ -23,10 +22,12 @@ internal class UserMapperProfile : Profile, IOrderedMapperProfile
         CreateMap<Interest, IdNameDto>().ReverseMap();
 
         CreateMap<Interest, UserInterestDto>()
-            .ForMember(d => d.InterestName, e => e.MapFrom(x => x.Name))
+            .ForMember(d => d.InterestName,
+                e => e.MapFrom(x => x.Name))
             .ReverseMap();
         CreateMap<Picture, PictureDto>()
-             .ForMember(d => d.PictureUrl, e => e.MapFrom(x => x.Url))
+            .ForMember(d => d.PictureUrl,
+                e => e.MapFrom(x => x.Url))
             .ReverseMap();
     }
 }

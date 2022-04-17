@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Aimo.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
