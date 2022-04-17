@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Aimo.Application.Users
 {
-    public partial class PictureDtoCollectionValidator : Validator<IEnumerable<PictureDto>>
+    public partial class PictureDtoCollectionValidator : Validator<IEnumerable<UserPictureDto>>
     {
         public PictureDtoCollectionValidator()
         {

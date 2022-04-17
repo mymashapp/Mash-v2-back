@@ -17,3 +17,11 @@ public enum Group
     Two = 2,
     Three = 3,
 }
+
+public enum CardType
+{
+     Yelp=1,
+     Own=2,
+     Airbnb=3,
+     Groupon=4
+}

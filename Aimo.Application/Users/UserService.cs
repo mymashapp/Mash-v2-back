@@ -2,6 +2,7 @@
 using Aimo.Data.Users;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;
+using Aimo.Domain.Interests;
 using Aimo.Domain.Users;
 using Aimo.Domain.Users.Entities;
 
@@ -12,56 +13,24 @@ namespace Aimo.Application.Users
         private readonly IUserRepository _userRepository;
         private readonly UserDtoValidator _userDtoValidator;
         private readonly IRepository<Interest> _interestRepository;
-        private readonly IPicturesService _picturesService;
+        private readonly IUserPicturesService _userPicturesService;
 
 
         public UserService(
             IUserRepository userRepository,
             UserDtoValidator userDtoValidator,
             IRepository<Interest> interestRepository,
-            IPicturesService picturesService)
+            IUserPicturesService userUserPicturesService)
         {
             _userRepository = userRepository;
             _userDtoValidator = userDtoValidator;
             _interestRepository = interestRepository;
-            _picturesService = picturesService;
+            _userPicturesService = userUserPicturesService;
         }
 
         #region Utilities
 
-        private async ResultTask SaveUserPicturesAsync(User entity, ICollection<PictureDto> pictures)
-        {
-            var result = await _userDtoValidator
-                .ValidateResultAsync(new UserDto{UploadedPictures = pictures})
-                .GetValidationResultFor(nameof(UserDto.UploadedPictures));
-            
-            if (!result.IsSucceeded)
-                return result;
-
-            
-            if (!pictures.Any()) return result.Failure(ResultMessage.NullOrEmptyObject);
-            
-            entity.Pictures.RemoveAll(x => pictures.Select(p => p.PictureType).Contains(x.PictureType));
-                
-            foreach (var picture in pictures)
-            {
-                var response = await _picturesService.InsertPictureAsync(new PictureDto
-                {
-                    UserId = entity.Id,
-                    PictureUrl = picture.PictureUrl,
-                    PictureType = picture.PictureType
-                });
-
-                if (response.IsSucceeded) continue;
-
-                result.Errors.GetOrAdd(
-                    $"{nameof(PictureDto.PictureUrl)}_{nameof(picture.PictureType)}_{picture.PictureType}",
-                    response.Message);
-                result.Failure(response.Message);
-            }
-
-            return result.Success();
-        }
+        
 
         #endregion
 
@@ -72,14 +41,6 @@ namespace Aimo.Application.Users
             return (await _interestRepository.FindAsync(x => true)).Map<IdNameDto[]>();
         }
 
-        /*public async Task<Result<UserDto>> GetById(int id)
-        {
-            var entity = await _userRepository.GetByIdAsync(id);
-
-            return entity is null
-                ? Result.Create<UserDto>().Failure(ResultMessage.NotFound)
-                : Result.Create(await PreparePicture(entity.Map<UserDto>())).Success();
-        }*/
 
         public async ResultTask GetOrCreateUserByUidAsync(string uid)
         {
@@ -106,7 +67,7 @@ namespace Aimo.Application.Users
             return Result.Create(dto).Success();
         }
 
-        public async ResultTask UpdatePictures(PictureDto[] dto)
+        public async ResultTask UpdatePictures(UserPictureDto[] dto)
         {
             var result = Result.Create();
 
@@ -119,7 +80,7 @@ namespace Aimo.Application.Users
                 if (entity is null)
                     return result.Failure(ResultMessage.NotFound);
 
-                result = await SaveUserPicturesAsync(entity, dto);
+                result = await _userPicturesService.SaveUserPicturesAsync(entity, dto);
                 
                 if (!result.IsSucceeded) return result;
             }
@@ -156,7 +117,7 @@ namespace Aimo.Application.Users
                 _userRepository.Update(entity);
                 await _userRepository.CommitAsync();
 
-                await SaveUserPicturesAsync(entity, dto.UploadedPictures);
+                await _userPicturesService.SaveUserPicturesAsync(entity, dto.UploadedPictures);
 
                 return result.SetData(entity.MapTo(dto)).Success();
             }
@@ -193,7 +154,7 @@ namespace Aimo.Application.Users
     {
         //Task<Result<UserDto>> GetById(int id);
         ResultTask GetOrCreateUserByUidAsync(string uid);
-        ResultTask UpdatePictures(PictureDto[] dto);
+        ResultTask UpdatePictures(UserPictureDto[] dto);
         ResultTask Update(UserDto viewDto);
         Task<Result<bool>> Delete(params int[] ids);
         Task<IdNameDto[]> GetAllInterests();

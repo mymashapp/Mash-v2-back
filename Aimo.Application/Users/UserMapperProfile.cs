@@ -1,4 +1,5 @@
 using Aimo.Core.Infrastructure;
+using Aimo.Domain.Interests;
 using Aimo.Domain.Users;
 using Aimo.Domain.Users.Entities;
 using AutoMapper;
@@ -25,7 +26,7 @@ internal class UserMapperProfile : Profile, IOrderedMapperProfile
             .ForMember(d => d.InterestName,
                 e => e.MapFrom(x => x.Name))
             .ReverseMap();
-        CreateMap<Picture, PictureDto>()
+        CreateMap<Picture, UserPictureDto>()
             .ForMember(d => d.PictureUrl,
                 e => e.MapFrom(x => x.Url))
             .ReverseMap();

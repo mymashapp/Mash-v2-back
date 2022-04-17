@@ -18,13 +18,13 @@
 
         #region View
         public List<UserInterestDto> Interests { get; set; } = new();
-        public ICollection<PictureDto> Pictures { get; set; } = Array.Empty<PictureDto>();
+        public ICollection<UserPictureDto> Pictures { get; set; } = Array.Empty<UserPictureDto>();
 
         #endregion
 
         #region Save
         public int[] SelectedInterestIds { get; set; } = Array.Empty<int>();
-        public ICollection<PictureDto> UploadedPictures { get; set; } = Array.Empty<PictureDto>();
+        public ICollection<UserPictureDto> UploadedPictures { get; set; } = Array.Empty<UserPictureDto>();
         #endregion
     }
 }

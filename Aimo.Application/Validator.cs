@@ -76,9 +76,7 @@ public static class ValidatorExtension
         
         foreach (var pair in pairs) result.Errors.TryRemove(pair);
 
-        result.IsSucceeded = !result.Errors.Any();
-        
-        return result;
+        return result.Errors.Any()? result:result.Success() ;
     }
 
     public static async Task<Result<TInstance>> ValidateResultAsync<TInstance>(this Validator<TInstance> validator,

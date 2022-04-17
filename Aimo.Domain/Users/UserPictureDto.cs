@@ -1,6 +1,6 @@
 ﻿namespace Aimo.Domain.Users
 {
-    public class PictureDto
+    public class UserPictureDto
     {
         public int UserId { get; set; }
         public string PictureUrl { get; set; }

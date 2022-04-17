@@ -1,4 +1,6 @@
-﻿namespace Aimo.Domain.Users.Entities
+﻿using Aimo.Domain.Interests;
+
+namespace Aimo.Domain.Users.Entities
 {
     public partial class User : AuditableEntity, ISoftDeleteSupport, IActiveInactiveSupport
     {
