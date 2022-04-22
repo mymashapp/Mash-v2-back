@@ -15,7 +15,7 @@ public static class DictionaryExtensions
         [NotNull] TKey key)
     {
 #pragma warning disable CS8777 // Parameter must have a non-null value when exiting.
-        return (dictionary.TryGetValue(key, out var result) ? result : default);
+        return dictionary.TryGetValue(key, out var result) ? result : default;
 #pragma warning restore CS8777 // Parameter must have a non-null value when exiting.
     }
 #endif

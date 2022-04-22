@@ -2,7 +2,7 @@
 /// <summary>
 /// Represents any class that supports Id, should inherit from IdBase class this will help in reflection and generic constrains
 /// </summary>
-public abstract partial class IdBase
+public abstract partial class IdBase // TODO: to interface
 {
     public virtual int Id { get; set; }
 }
@@ -16,7 +16,7 @@ public abstract partial class Entity : IdBase
 /// <summary>
 /// use for dto
 /// </summary>
-public partial class Dto : IdBase
+public partial class Dto : IdBase // TODO: dto should be record struct type??
 { }
 
 public partial class AuditableEntity : Entity

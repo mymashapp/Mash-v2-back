@@ -17,7 +17,7 @@ public class UserController : ApiBaseController
     /*[HttpGet]
     public async Task<IActionResult> GetUserById(int id)
     {
-        return Result(await _userService.GetById(id));
+        return Result(await _userService.GetByIdAsync(id));
     }*/
     
     /*
@@ -37,12 +37,12 @@ public class UserController : ApiBaseController
     [HttpPut]
     public async Task<IActionResult> Update(UserDto dto)
     {
-        return Result(await _userService.Update(dto));
+        return Result(await _userService.UpdateAsync(dto));
     }
     
     [HttpPut]
     public async Task<IActionResult> UpdatePictures(UserPictureDto[] dto)
     {
-        return Result(await _userService.UpdatePictures(dto));
+        return Result(await _userService.UpdatePicturesAsync(dto));
     }
 }

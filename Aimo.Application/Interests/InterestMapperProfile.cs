@@ -1,5 +1,4 @@
 using Aimo.Core.Infrastructure;
-using Aimo.Domain.Category;
 using Aimo.Domain.Interests;
 using AutoMapper;
 

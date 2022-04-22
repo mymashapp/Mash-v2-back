@@ -1,7 +1,5 @@
-using Aimo.Application.Card;
-using Aimo.Application.Category;
-using Aimo.Domain.Card;
-using Aimo.Domain.Category;
+using Aimo.Application.Categories;
+using Aimo.Domain.Categories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aimo.Web.Controllers;
@@ -24,16 +22,16 @@ public class CategoryController : ApiBaseController
     [HttpPost]
     public async Task<IActionResult> Create(CategoryDto dto)
     {
-        return Result(await _categoryService.Create(dto));
+        return Result(await _categoryService.CreateAsync(dto));
     }
     [HttpGet]
     public async Task<IActionResult> EditCard(int id)
     {
-        return Result(await _categoryService.GetById(id));
+        return Result(await _categoryService.GetByIdAsync(id));
     }
     [HttpPost]
     public async Task<IActionResult> Update(CategoryDto dto)
     {
-        return Result(await _categoryService.Update(dto));
+        return Result(await _categoryService.UpdateAsync(dto));
     }
 }

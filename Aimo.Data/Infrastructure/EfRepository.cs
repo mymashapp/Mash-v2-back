@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Data.Common;
-using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using Aimo.Core.Specifications;
 using Aimo.Domain.Data;
@@ -81,7 +80,7 @@ internal partial class EfRepository : IRepository
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
         int? skip = null, int? take = null,
-        string? orderBy = null, string orderDirection = "asc",
+        string? orderBy = null, SortDirection orderDirection = SortDirection.Asc,
         bool? isDeleted = false, bool? isActive = null
     ) where TEntity : Entity
     {
@@ -97,7 +96,12 @@ internal partial class EfRepository : IRepository
         if (isActive is not null && typeof(IActiveInactiveSupport).IsAssignableFrom(typeof(TEntity)))
             query = query.Where(x => ((IActiveInactiveSupport)x).IsActive == isActive);
 
-        if (orderBy is not null) query = query.OrderBy(orderBy, orderDirection);
+        if (orderBy is not null)
+        {
+            query = orderDirection == SortDirection.Asc
+                ? query.OrderBy(p => EF.Property<TEntity>(p, orderBy))
+                : query.OrderByDescending(p => EF.Property<TEntity>(p, orderBy));
+        }
 
         if (skip.HasValue) query = query.Skip(skip.Value);
 

@@ -22,7 +22,7 @@ internal partial class InterestService:IInterestService
         return (await _interestRepository.FindAsync(x => true)).Map<IdNameDto[]>();
     }
     
-     public async ResultTask GetById(int id)
+     public async ResultTask GetByIdAsync(int id)
     {
         var result = Result.Create(new InterestDto());
         var entity = await _interestRepository.GetByIdAsync(id);
@@ -31,7 +31,7 @@ internal partial class InterestService:IInterestService
             : result.Failure(ResultMessage.NotFound);
     }
 
-    public async ResultTask Create(InterestDto dto)
+    public async ResultTask CreateAsync(InterestDto dto)
     {
         var result = await _interestDtoValidator.ValidateResultAsync(dto);
         if (!result.IsSucceeded)
@@ -50,7 +50,7 @@ internal partial class InterestService:IInterestService
         }
     }
 
-    public async ResultTask Update(InterestDto dto)
+    public async ResultTask UpdateAsync(InterestDto dto)
     {
         var result = await _interestDtoValidator.ValidateResultAsync(dto);
         if (!result.IsSucceeded)
@@ -74,7 +74,7 @@ internal partial class InterestService:IInterestService
     }
 
 
-    public async Task<Result<bool>> Delete(params int[] ids)
+    public async ResultTask DeleteAsync(params int[] ids)
     {
         var result = Result.Create(false);
         try
@@ -99,7 +99,7 @@ public partial interface IInterestService
 {
    
     Task<IdNameDto[]> GetAllInterests();
-    ResultTask GetById(int id);
-    ResultTask Create(InterestDto dto);
-    ResultTask Update(InterestDto viewDto);
+    ResultTask GetByIdAsync(int id);
+    ResultTask CreateAsync(InterestDto dto);
+    ResultTask UpdateAsync(InterestDto viewDto);
 }

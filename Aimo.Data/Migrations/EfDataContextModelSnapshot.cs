@@ -22,7 +22,7 @@ namespace Aimo.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Aimo.Domain.Card.Card", b =>
+            modelBuilder.Entity("Aimo.Domain.Cards.Card", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,15 +30,31 @@ namespace Aimo.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Address")
+                    b.Property<string>("Address1")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("CardType")
+                    b.Property<string>("Address2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Address3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Alias")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CardType")
                         .HasColumnType("int");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedAtUtc")
                         .ValueGeneratedOnAdd()
@@ -48,18 +64,35 @@ namespace Aimo.Data.Migrations
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("DateUTC")
+                    b.Property<DateTime>("DateUtc")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("EventName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PictureUrl")
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float?>("Rating")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("ReviewCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("State")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
@@ -68,15 +101,13 @@ namespace Aimo.Data.Migrations
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
 
-                    b.Property<string>("Zip")
+                    b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("latitude")
-                        .HasColumnType("float");
-
-                    b.Property<double>("longitude")
-                        .HasColumnType("float");
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -85,7 +116,22 @@ namespace Aimo.Data.Migrations
                     b.ToTable("Card", (string)null);
                 });
 
-            modelBuilder.Entity("Aimo.Domain.Card.Category", b =>
+            modelBuilder.Entity("Aimo.Domain.Categories.CardSubCategory", b =>
+                {
+                    b.Property<int>("CardId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubCategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CardId", "SubCategoryId");
+
+                    b.HasIndex("SubCategoryId");
+
+                    b.ToTable("CardSubCategory");
+                });
+
+            modelBuilder.Entity("Aimo.Domain.Categories.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -122,7 +168,36 @@ namespace Aimo.Data.Migrations
                     b.ToTable("Category", (string)null);
                 });
 
-            modelBuilder.Entity("Aimo.Domain.Users.Entities.Interest", b =>
+            modelBuilder.Entity("Aimo.Domain.Categories.SubCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Alias")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("SubCategory", (string)null);
+                });
+
+            modelBuilder.Entity("Aimo.Domain.Interests.Interest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -263,12 +338,42 @@ namespace Aimo.Data.Migrations
                     b.ToTable("UserInterest");
                 });
 
-            modelBuilder.Entity("Aimo.Domain.Card.Card", b =>
+            modelBuilder.Entity("Aimo.Domain.Cards.Card", b =>
                 {
-                    b.HasOne("Aimo.Domain.Card.Category", "Category")
+                    b.HasOne("Aimo.Domain.Categories.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Aimo.Domain.Categories.CardSubCategory", b =>
+                {
+                    b.HasOne("Aimo.Domain.Cards.Card", "Card")
+                        .WithMany()
+                        .HasForeignKey("CardId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Aimo.Domain.Categories.SubCategory", "SubCategory")
+                        .WithMany()
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+
+                    b.Navigation("SubCategory");
+                });
+
+            modelBuilder.Entity("Aimo.Domain.Categories.SubCategory", b =>
+                {
+                    b.HasOne("Aimo.Domain.Categories.Category", "Category")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -285,7 +390,7 @@ namespace Aimo.Data.Migrations
 
             modelBuilder.Entity("Aimo.Domain.Users.Entities.UserInterest", b =>
                 {
-                    b.HasOne("Aimo.Domain.Users.Entities.Interest", null)
+                    b.HasOne("Aimo.Domain.Interests.Interest", null)
                         .WithMany()
                         .HasForeignKey("InterestId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -296,6 +401,11 @@ namespace Aimo.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Aimo.Domain.Categories.Category", b =>
+                {
+                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("Aimo.Domain.Users.Entities.User", b =>

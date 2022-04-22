@@ -1,10 +1,14 @@
 ﻿using System.Net;
+using System.Text.Json.Serialization;
 using Aimo.Application;
+using Aimo.Core;
 using Aimo.Core.Infrastructure;
 using Aimo.Data.Infrastructure;
+using Aimo.Data.Infrastructure.Yelp;
+using Aimo.Domain;
 using Aimo.Domain.Infrastructure;
 using Aimo.Domain.Labels;
-using Aimo.Domain.WorkContext;
+using Aimo.Domain.Users;
 using Aimo.Web.Framework.Infrastructure;
 using Autofac;
 using FirebaseAdmin;
@@ -14,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
@@ -30,7 +35,9 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">Collection of service descriptors</param>
     /// <param name="builder">A builder for web applications and services</param>
-    public static void ConfigureApplicationServices(this IServiceCollection services, WebApplicationBuilder builder)
+    /// <param name="configuration"></param>
+    public static void ConfigureApplicationServices(this IServiceCollection services, WebApplicationBuilder builder,
+        IConfiguration configuration)
     {
         //let the operating system decide what TLS protocol version to use
         //see https://docs.microsoft.com/dotnet/framework/network-programming/tls
@@ -47,6 +54,9 @@ public static class ServiceCollectionExtensions
         //add accessor to HttpContext
         services.AddHttpContextAccessor();
 
+        var appSettings = services.ConfigureStartupConfig<AppSetting>(configuration);
+        services.AddSingleton(appSettings);
+
         //register type finder
         var typeFinder = new TypeHelper();
         Singleton<ITypeHelper>.Instance = typeFinder;
@@ -56,7 +66,10 @@ public static class ServiceCollectionExtensions
 
         #region WebApi
 
-        services.AddControllers().AddFluentValidation(x => x.AutomaticValidationEnabled = false);
+        services.AddControllers()
+            .AddFluentValidation(x => x.AutomaticValidationEnabled = false)
+            .AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);;
 
 
         // Customise default API behaviour
@@ -111,9 +124,11 @@ public static class ServiceCollectionExtensions
 
         services.AddDataProject(builder.Configuration);
         services.AddApplicationProject(builder.Configuration);
-        
+
         services.AddScoped<IAppFileProvider, DefaultFileProvider>();
-        services.AddScoped<IWorkContext, WebWorkContext>(); //TODO: move to framework dependency injection class
+        services.AddScoped<IUserContext, WebUserContext>(); //TODO: move to framework dependency injection class
+
+        services.AddHttpClients();
 
         //create engine and configure service provider
         EngineContext.Create(new AppEngine()).ConfigureServices(services, builder.Configuration);
@@ -123,6 +138,14 @@ public static class ServiceCollectionExtensions
         builder.Host.ConfigureContainer<ContainerBuilder>(ConfigureAutofacContainer);
 
         #endregion
+    }
+
+    private static void AddHttpClients(this IServiceCollection services)
+    {
+        services.AddHttpClient<YelpHttpClient>().ConfigurePrimaryHttpMessageHandler(handler =>
+            new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip });
+
+        services.AddScoped<IYelpHttpClient>(provider => provider.GetRequiredService<YelpHttpClient>());
     }
 
     private static void ConfigureAutofacContainer(ContainerBuilder builder)
@@ -152,5 +175,14 @@ public static class ServiceCollectionExtensions
     public static void AddHttpContextAccessor(this IServiceCollection services)
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+    }
+
+    public static TSetting ConfigureStartupConfig<TSetting>(this IServiceCollection services,
+        IConfiguration configuration) where TSetting : class, new()
+    {
+        configuration.ThrowIfNull();
+        var setting = new TSetting();
+        configuration.Bind(setting);
+        return setting;
     }
 }

@@ -81,7 +81,7 @@ public partial class TypeHelper : ITypeHelper
         catch (ReflectionTypeLoadException ex)
         {
             var msg = ex.LoaderExceptions.Aggregate(string.Empty,
-                (current, e) => current + (e?.Message?.EmptyIfNull() + Environment.NewLine));
+                (current, e) => current + e?.Message?.EmptyIfNull() + Environment.NewLine);
             var fail = new Exception(msg, ex);
             Debug.WriteLine(fail.Message, fail);
 

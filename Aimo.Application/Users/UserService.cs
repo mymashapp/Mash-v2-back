@@ -36,11 +36,7 @@ namespace Aimo.Application.Users
 
         #region Methods
 
-        public async Task<IdNameDto[]> GetAllInterests()
-        {
-            return (await _interestRepository.FindAsync(x => true)).Map<IdNameDto[]>();
-        }
-
+       
 
         public async ResultTask GetOrCreateUserByUidAsync(string uid)
         {
@@ -67,7 +63,7 @@ namespace Aimo.Application.Users
             return Result.Create(dto).Success();
         }
 
-        public async ResultTask UpdatePictures(UserPictureDto[] dto)
+        public async ResultTask UpdatePicturesAsync(UserPictureDto[] dto)
         {
             var result = Result.Create();
 
@@ -92,7 +88,7 @@ namespace Aimo.Application.Users
             return result.Success();
         }
 
-        public async ResultTask Update(UserDto dto)
+        public async ResultTask UpdateAsync(UserDto dto)
         {
             var result = await _userDtoValidator.ValidateResultAsync(dto);
             if (!result.IsSucceeded)
@@ -128,7 +124,7 @@ namespace Aimo.Application.Users
         }
 
 
-        public async Task<Result<bool>> Delete(params int[] ids)
+        public async ResultTask DeleteAsync(params int[] ids)
         {
             var result = Result.Create(false);
             try
@@ -152,11 +148,10 @@ namespace Aimo.Application.Users
 
     public partial interface IUserService
     {
-        //Task<Result<UserDto>> GetById(int id);
+        //ResultTask GetById(int id);
         ResultTask GetOrCreateUserByUidAsync(string uid);
-        ResultTask UpdatePictures(UserPictureDto[] dto);
-        ResultTask Update(UserDto viewDto);
-        Task<Result<bool>> Delete(params int[] ids);
-        Task<IdNameDto[]> GetAllInterests();
+        ResultTask UpdatePicturesAsync(UserPictureDto[] dto);
+        ResultTask UpdateAsync(UserDto viewDto);
+        ResultTask DeleteAsync(params int[] ids);
     }
 }

@@ -1,5 +1,3 @@
-using Aimo.Domain.Users.Entities;
-
 namespace Aimo.Domain.Interests;
 
 public partial class InterestDto : Dto

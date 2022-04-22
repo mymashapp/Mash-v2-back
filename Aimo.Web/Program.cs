@@ -18,7 +18,7 @@ public class Program
         builder.Configuration.AddEnvironmentVariables();
 
         //Add services to the application and configure service provider
-        builder.Services.ConfigureApplicationServices(builder);
+        builder.Services.ConfigureApplicationServices(builder,builder.Configuration);
         
         var app = builder.Build();
 

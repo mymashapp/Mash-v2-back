@@ -1,6 +1,6 @@
 using Aimo.Application.Users;
+using Aimo.Domain.Users;
 using Aimo.Domain.Users.Entities;
-using Aimo.Domain.WorkContext;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +14,7 @@ public class JwtMiddleware
 
     public JwtMiddleware(RequestDelegate next) => _next = next;
 
-    public async Task InvokeAsync(HttpContext context, ILogger<JwtMiddleware> logger, IUserService userService, IWorkContext workContext)
+    public async Task InvokeAsync(HttpContext context, ILogger<JwtMiddleware> logger, IUserService userService, IUserContext userContext)
     {
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
@@ -30,7 +30,7 @@ public class JwtMiddleware
             #endregion
              */
             if (token != null)
-                await AttachUserToContextAsync(context, userService, workContext, token);
+                await AttachUserToContextAsync(context, userService, userContext, token);
         }
         catch (Exception e)
         {
@@ -40,7 +40,7 @@ public class JwtMiddleware
         await _next(context);
     }
 
-    private async Task AttachUserToContextAsync(HttpContext context, IUserService userService, IWorkContext workContext, string token)
+    private async Task AttachUserToContextAsync(HttpContext context, IUserService userService, IUserContext userContext, string token)
     {
         
         
@@ -50,7 +50,7 @@ public class JwtMiddleware
         if (userResult.IsSucceeded)
         {
             var user = userResult.Data.Map<User>();
-            await workContext.SetCurrentUserAsync(user);
+            await userContext.SetCurrentUserAsync(user);
         }
         //context.Items[WebFrameworkDefaults.Email] = decodedToken.Claims[WebFrameworkDefaults.Email];
     }

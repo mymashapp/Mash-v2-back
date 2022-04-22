@@ -1,6 +1,8 @@
 ﻿using System.Data.Common;
 using System.Reflection;
 using Aimo.Domain.Data;
+using Aimo.Domain.Infrastructure;
+using Aimo.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -20,6 +22,7 @@ public partial class EfDataContext : DbContext, IDataContext
             .LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuted })
             .EnableSensitiveDataLogging()
             .EnableDetailedErrors();
+        
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,7 +37,6 @@ public partial class EfDataContext : DbContext, IDataContext
             var configuration = (IMappingConfiguration)Activator.CreateInstance(typeConfiguration)!;
             configuration?.ApplyConfiguration(modelBuilder);
         }
-
         base.OnModelCreating(modelBuilder);
     }
 
@@ -58,36 +60,31 @@ public partial class EfDataContext : DbContext, IDataContext
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
-        UpdateAuditable();
+        await UpdateAuditable();
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    private void UpdateAuditable()
+    private async Task UpdateAuditable()
     {
-        var auditableEntries =
-            ChangeTracker.Entries().Where(e =>
-                e.Entity is AuditableEntity
-                && e.State is EntityState.Modified or EntityState.Added);
+        var auditables =
+            ChangeTracker.Entries<AuditableEntity>().Where(e => e.State is EntityState.Modified or EntityState.Added);
 
-        if (auditableEntries.Any())
+        if (!auditables.Any()) return;
+
+        var userId = (await EngineContext.Current.Resolve<IUserContext>().GetCurrentUserAsync())?.Id ?? -1;
+
+        foreach (var entry in auditables)
         {
-            /*var workContext = EngineContext.Current.Resolve<IWorkContext>();
-            await workContext.SetCurrentUserAsync();
-            var userId = (await workContext.GetCurrentUserAsync())?.Id ?? -1;*/
-            var userId = -1; //TODO: fix auditable
-            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            switch (entry.State)
             {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.Entity.CreatedBy = userId;
-                        break;
+                case EntityState.Added:
+                    entry.Entity.CreatedBy = userId;
+                    break;
 
-                    case EntityState.Modified:
-                        entry.Entity.UpdatedBy = userId;
-                        entry.Entity.UpdatedAtUtc = DateTime.UtcNow;
-                        break;
-                }
+                case EntityState.Modified:
+                    entry.Entity.UpdatedBy = userId;
+                    entry.Entity.UpdatedAtUtc = DateTime.UtcNow;
+                    break;
             }
         }
     }
