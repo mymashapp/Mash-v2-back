@@ -15,6 +15,7 @@ internal partial class CardService : ICardService
 {
     private readonly ICardRepository _cardRepository;
     private readonly ISubCategoryRepository _subCategoryRepository;
+    private readonly ICardPictureRepository _cardPictureRepository;
     private readonly CardDtoValidator _cardDtoValidator;
     private readonly IAppFileProvider _appFileProvider;
     private readonly IYelpHttpClient _yelpHttpClient;
@@ -23,6 +24,7 @@ internal partial class CardService : ICardService
     public CardService(
         ICardRepository cardRepository,
         ISubCategoryRepository subCategoryRepository,
+        ICardPictureRepository cardPictureRepository,
         CardDtoValidator cardDtoValidator,
         IAppFileProvider appFileProvider,
         IYelpHttpClient yelpHttpClient
@@ -33,6 +35,7 @@ internal partial class CardService : ICardService
         _appFileProvider = appFileProvider;
         _yelpHttpClient = yelpHttpClient;
         _subCategoryRepository = subCategoryRepository;
+        _cardPictureRepository = cardPictureRepository;
     }
 
     #region Utilities
@@ -57,6 +60,7 @@ internal partial class CardService : ICardService
         if (subcategories!.IsNullOrEmpty())
             return res.Failure(ResultMessage.NotFound);
 
+        //TODO: await Parallel.ForEachAsync()
         foreach (var subCat in subcategories)
         {
             dto.Category = subCat.Category.Name;
@@ -68,9 +72,11 @@ internal partial class CardService : ICardService
             if (!searchResult.IsSucceeded) continue;
 
             var cards = searchResult.Data.Select(c => CardResultSelector(c, subCat)).ToArray();
-            await _cardRepository.AddCardsIfNotExists(cards);
+            var cardForSearchPicture = await _cardRepository.AddCardsIfNotExists(cards);
             await _cardRepository.CommitAsync(ct: ct);
+            await SearchCardPictureAsync(cardForSearchPicture);
         }
+
 
         return await SearchCardInDbAsync(dto);
 
@@ -90,6 +96,22 @@ internal partial class CardService : ICardService
         }
 
         #endregion
+    }
+
+    private async ResultTask SearchCardPictureAsync(Card[] cards)
+    {
+        var cardPictureSearchDto = cards.Map<CardPictureDto[]>();
+        foreach (var dto in cardPictureSearchDto)
+        {
+            var searchResult = await _yelpHttpClient.SearchCardPictureAsync(dto);
+            if (!searchResult.IsSucceeded) continue;
+
+            var cardPictures = searchResult.Data.Map<CardPicture[]>();
+            await _cardPictureRepository.AddCardsPictureIfNotExists(cardPictures);
+            await _cardPictureRepository.CommitAsync();
+        }
+
+        return Result.Create(cardPictureSearchDto);
     }
 
 

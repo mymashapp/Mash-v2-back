@@ -1,12 +1,13 @@
 using Aimo.Data.Infrastructure;
+using Aimo.Domain.Cards;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Aimo.Data.Cards;
 
-public partial class CardTableMap : EntityTableMap<Domain.Cards.Card>
+public partial class CardTableMap : EntityTableMap<Card>
 {
-    public override void Map(EntityTypeBuilder<Domain.Cards.Card> builder)
+    public override void Map(EntityTypeBuilder<Card> builder)
     {
         builder.Property(t => t.Name).IsRequired();
         builder.Property(t => t.Longitude).IsRequired();

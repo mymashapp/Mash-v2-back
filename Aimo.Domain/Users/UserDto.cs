@@ -7,13 +7,17 @@
         public string Email { get; set; }
         public DateTime DateOfBirth { get; set; }
         public Gender? Gender { get; set; }
-
+        
+        public string? University { get; set; }
+        public string? Location { get; set; }
+        public int? Height { get; set; }
+        
         public string Bio { get; set; }
         public bool IsNew { get; set; }
         
         public int PreferenceAgeTo { get; set; }
         public int PreferenceAgeFrom { get; set; }
-        public Group? PreferenceGroupOf { get; set; }
+        public GroupType? PreferenceGroupOf { get; set; }
         public Gender? PreferenceGender { get; set; }
 
         #region View

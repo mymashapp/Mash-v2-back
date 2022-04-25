@@ -9,12 +9,12 @@ namespace Aimo.Application.Users
 {
     public partial class UserUserPicturesService : IUserPicturesService
     {
-        private readonly IRepository<Picture> _picturesRepository;
+        private readonly IRepository<UserPicture> _picturesRepository;
         private readonly IAppFileProvider _fileProvider;
         private readonly UserDtoValidator _userDtoValidator;
 
 
-        public UserUserPicturesService(IRepository<Picture> picturesRepository, IAppFileProvider fileProvider,
+        public UserUserPicturesService(IRepository<UserPicture> picturesRepository, IAppFileProvider fileProvider,
             UserDtoValidator userDtoValidator)
         {
             _picturesRepository = picturesRepository;
@@ -63,12 +63,12 @@ namespace Aimo.Application.Users
             return result.Success();
         }
 
-        public async Task<Result<Picture>> UploadUserPictureAsync(UserPictureDto dto)
+        public async Task<Result<UserPicture>> UploadUserPictureAsync(UserPictureDto dto)
         {
             try
             {
                 var image = new Base64Image(dto.PictureUrl);
-                var entity = dto.Map<Picture>();
+                var entity = dto.Map<UserPicture>();
 
                 var fileName = $"{Guid.NewGuid()}.{image.Extension}";
                 var fileAbsPath = _fileProvider.GetAbsolutePath(AppDefaults.UserPicturePath);
@@ -80,14 +80,14 @@ namespace Aimo.Application.Users
             }
             catch (Exception e)
             {
-                return Result.Create<Picture>().Failure(e.Message);
+                return Result.Create<UserPicture>().Failure(e.Message);
             }
         }
     }
 
     public partial interface IUserPicturesService
     {
-        Task<Result<Picture>> UploadUserPictureAsync(UserPictureDto dto);
+        Task<Result<UserPicture>> UploadUserPictureAsync(UserPictureDto dto);
         ResultTask SaveUserPicturesAsync(User entity, ICollection<UserPictureDto> pictures);
     }
 }

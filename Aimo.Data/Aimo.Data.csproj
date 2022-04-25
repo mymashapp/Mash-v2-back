@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Compile Remove="Issues\**" />
+    <Compile Remove="Cards\SwipeGroupInterestTableMap.cs" />
   </ItemGroup>
 
   <ItemGroup>

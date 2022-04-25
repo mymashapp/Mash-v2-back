@@ -4,6 +4,7 @@ using Aimo.Data.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Aimo.Data.Migrations
 {
     [DbContext(typeof(EfDataContext))]
-    partial class EfDataContextModelSnapshot : ModelSnapshot
+    [Migration("20220425064436_added_swipe_group")]
+    partial class added_swipe_group
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -326,6 +328,31 @@ namespace Aimo.Data.Migrations
                     b.ToTable("Interest");
                 });
 
+            modelBuilder.Entity("Aimo.Domain.Users.Entities.Picture", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("PictureType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Picture");
+                });
+
             modelBuilder.Entity("Aimo.Domain.Users.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -355,9 +382,6 @@ namespace Aimo.Data.Migrations
                     b.Property<int?>("Gender")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Height")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -366,9 +390,6 @@ namespace Aimo.Data.Migrations
 
                     b.Property<bool>("IsNew")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -390,9 +411,6 @@ namespace Aimo.Data.Migrations
                     b.Property<string>("Uid")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("University")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
@@ -429,31 +447,6 @@ namespace Aimo.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserInterest");
-                });
-
-            modelBuilder.Entity("Aimo.Domain.Users.Entities.UserPicture", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("PictureType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserPicture");
                 });
 
             modelBuilder.Entity("Aimo.Domain.Cards.Card", b =>
@@ -546,6 +539,15 @@ namespace Aimo.Data.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Aimo.Domain.Users.Entities.Picture", b =>
+                {
+                    b.HasOne("Aimo.Domain.Users.Entities.User", null)
+                        .WithMany("Pictures")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Aimo.Domain.Users.Entities.UserInterest", b =>
                 {
                     b.HasOne("Aimo.Domain.Interests.Interest", null)
@@ -556,15 +558,6 @@ namespace Aimo.Data.Migrations
 
                     b.HasOne("Aimo.Domain.Users.Entities.User", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Aimo.Domain.Users.Entities.UserPicture", b =>
-                {
-                    b.HasOne("Aimo.Domain.Users.Entities.User", null)
-                        .WithMany("Pictures")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

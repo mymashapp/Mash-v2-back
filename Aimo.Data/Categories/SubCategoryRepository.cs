@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Aimo.Data.Infrastructure;
+﻿using Aimo.Data.Infrastructure;
 using Aimo.Domain.Categories;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;

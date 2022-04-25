@@ -1,12 +1,10 @@
-﻿
-
-#nullable disable
-using Aimo.Application.Cards;
+﻿#nullable disable
 using Aimo.Domain;
 using Aimo.Domain.Cards;
 using Aimo.Domain.Infrastructure;
 using Marvin.StreamExtensions;
 using Newtonsoft.Json;
+
 namespace Aimo.Data.Infrastructure.Yelp;
 
 public abstract class HttpClientBase
@@ -73,9 +71,45 @@ public class YelpHttpClient : HttpClientBase, IYelpHttpClient
             return result.Failure(e.Message);
         }
     }
+
+    public async Task<ListResult<CardPictureDto>> SearchCardPictureAsync(CardPictureDto dto,
+        CancellationToken ct = default)
+    {
+        var result = Result.Create(new CardPictureDto[] { });
+        try
+        {
+            var token = new YelpAuthToken { AccessToken = _appSetting.Yelp.Token };
+            var searchUri =
+                new Uri(
+                    $"{_appSetting.Yelp.ApiEndPoint}{_appSetting.Yelp.CardPictureSearchUrl.Format(dto.Alias)}");
+
+
+            var httpReqMsg = new HttpRequestMessage(HttpMethod.Get, searchUri);
+
+            httpReqMsg.Headers.Add("Authorization", token.Bearer);
+
+            using var response = await _httpClient.SendAsync(httpReqMsg, HttpCompletionOption.ResponseHeadersRead, ct);
+            if (!IsSuccessStatusCode(response))
+                return result.Failure(await response.Content.ReadAsStringAsync(ct));
+
+            var yelpResponse = (await response.Content.ReadAsStreamAsync(ct))
+                .ReadAndDeserializeFromJson<YelpRawResponsePicture>();
+
+            var cardPicture = yelpResponse.CardPicture
+                .Select(picture => new CardPictureDto { CardId = dto.CardId, PictureUrl = picture }).ToList();
+
+
+            return result.SetData(cardPicture).Success();
+        }
+        catch (Exception e)
+        {
+            return result.Failure(e.Message);
+        }
+    }
 }
 
 public interface IYelpHttpClient
 {
     Task<ListResult<YelpCardDto>> SearchAsync(CardSearchDto dto, CancellationToken ct = default);
+    Task<ListResult<CardPictureDto>> SearchCardPictureAsync(CardPictureDto dto, CancellationToken ct = default);
 }

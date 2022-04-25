@@ -26,7 +26,7 @@ internal class UserMapperProfile : Profile, IOrderedMapperProfile
             .ForMember(d => d.InterestName,
                 e => e.MapFrom(x => x.Name))
             .ReverseMap();
-        CreateMap<Picture, UserPictureDto>()
+        CreateMap<UserPicture, UserPictureDto>()
             .ForMember(d => d.PictureUrl,
                 e => e.MapFrom(x => x.Url))
             .ReverseMap();

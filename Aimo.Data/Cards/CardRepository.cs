@@ -1,20 +1,103 @@
-﻿using Aimo.Data.Infrastructure;
+﻿using System.Linq.Expressions;
+using Aimo.Data.Infrastructure;
+using Aimo.Domain;
 using Aimo.Domain.Cards;
+using Aimo.Domain.Categories;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;
+using Aimo.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aimo.Data.Cards;
 
 internal partial class CardRepository : EfRepository<Card>, ICardRepository
 {
-    public CardRepository(IDataContext context) : base(context)
+    private readonly AppSetting _appSetting;
+
+    public CardRepository(IDataContext context, AppSetting appSetting) : base(context)
     {
+        _appSetting = appSetting;
     }
 
     public async Task<CardListDto[]> SearchCards(CardSearchDto dto)
     {
-        return await AsNoTracking.ProjectTo<CardListDto>().ToArrayAsync();
+        Expression<Func<Card, bool>> zipEql = x => x.ZipCode == dto.ZipCode;
+
+        var wthOutLastDigit = dto.ZipCode.Length > 1 ? $"{dto.ZipCode[..^1]}%" : dto.ZipCode;
+        Expression<Func<Card, bool>> zipLike = x => EF.Functions.Like(x.ZipCode, wthOutLastDigit);
+        
+        
+        var cardQuery = AsNoTracking;
+        var categoryQuery = AsNoTracking<Category>();
+        var swipeHistories = AsNoTracking<SwipeHistory>();
+        
+        var cardQueryExcludingSwipes =
+            from cd in cardQuery
+            join h in swipeHistories on cd.Id equals h.CardId into j
+            from h in j.DefaultIfEmpty()
+#pragma warning disable CS0472
+            where h.CardId == null
+#pragma warning restore CS0472
+            select cd;
+
+
+        #region Yelp
+
+        var yelpCardQuery = categoryQuery.Select(ct => ct.Id).SelectMany(categoryId =>
+            cardQueryExcludingSwipes.Where(c => c.CategoryId == categoryId && c.CardType == CardType.Yelp)
+                .Take(_appSetting.ItemCountPerProvider)
+        );
+        
+        
+        //TODO: can hard code count for perf improvement
+        var categoryCount = await categoryQuery.CountAsync();
+        
+        if (await yelpCardQuery.CountAsync(zipEql) > _appSetting.ItemCountPerProvider * categoryCount)
+        {
+            yelpCardQuery = yelpCardQuery.Where(zipEql);
+
+        }
+        else if (await yelpCardQuery.CountAsync(zipLike) > _appSetting.ItemCountPerProvider * categoryCount)
+        {
+            yelpCardQuery = yelpCardQuery.Where(zipLike);
+        }
+
+        #endregion
+
+        #region GroupOn
+
+        var groupOnCardQuery = cardQueryExcludingSwipes.Where(c => c.CardType == CardType.Groupon).Take(_appSetting.ItemCountPerProvider);
+        if (await groupOnCardQuery.CountAsync(zipEql) > _appSetting.ItemCountPerProvider)
+        {
+            groupOnCardQuery = groupOnCardQuery.Where(zipEql);
+
+        }
+        else if (await groupOnCardQuery.CountAsync(zipLike) > _appSetting.ItemCountPerProvider)
+        {
+            groupOnCardQuery = groupOnCardQuery.Where(zipLike);
+        }
+        #endregion
+        
+        #region AirBnB
+
+        var airBnbOnCardQuery = cardQueryExcludingSwipes.Where(c => c.CardType == CardType.Airbnb).Take(_appSetting.ItemCountPerProvider);
+        if (await airBnbOnCardQuery.CountAsync(zipEql) > _appSetting.ItemCountPerProvider)
+        {
+            airBnbOnCardQuery = airBnbOnCardQuery.Where(zipEql);
+
+        }
+        else if (await airBnbOnCardQuery.CountAsync(zipLike) > _appSetting.ItemCountPerProvider)
+        {
+            airBnbOnCardQuery = airBnbOnCardQuery.Where(zipLike);
+        }
+
+        #endregion
+        return await yelpCardQuery.Union(groupOnCardQuery).Union(airBnbOnCardQuery).ProjectTo<CardListDto>().ToArrayAsync();
+    }
+
+    public async Task<CardPictureDto[]> SearchCardsForPicture()
+    {
+        return await AsNoTracking.ProjectTo<CardPictureDto>().ToArrayAsync();
     }
 
     public async Task<Card[]> AddCardsIfNotExists(Card[] cards)
@@ -33,4 +116,5 @@ public partial interface ICardRepository : IRepository<Card>
 {
     Task<Card[]> AddCardsIfNotExists(Card[] cards);
     Task<CardListDto[]> SearchCards(CardSearchDto dto);
+    Task<CardPictureDto[]> SearchCardsForPicture();
 }

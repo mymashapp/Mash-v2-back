@@ -45,6 +45,12 @@ internal record YelpRawResponse
 {
     [JsonProperty("businesses")] public Business[] Businesses { get; set; } = Array.Empty<Business>();
 }
+internal record YelpRawResponsePicture
+{
+    [JsonProperty("photos")] public string[] CardPicture { get; set; } = Array.Empty<string>();
+}
+
+
 
 public record SubCategory
 {

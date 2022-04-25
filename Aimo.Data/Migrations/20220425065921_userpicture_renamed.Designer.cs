@@ -4,6 +4,7 @@ using Aimo.Data.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Aimo.Data.Migrations
 {
     [DbContext(typeof(EfDataContext))]
-    partial class EfDataContextModelSnapshot : ModelSnapshot
+    [Migration("20220425065921_userpicture_renamed")]
+    partial class userpicture_renamed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -355,7 +357,7 @@ namespace Aimo.Data.Migrations
                     b.Property<int?>("Gender")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Height")
+                    b.Property<int>("Height")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -368,6 +370,7 @@ namespace Aimo.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -392,6 +395,7 @@ namespace Aimo.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("University")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")

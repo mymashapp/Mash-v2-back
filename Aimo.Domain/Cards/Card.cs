@@ -3,6 +3,7 @@ using Aimo.Domain.Users;
 
 namespace Aimo.Domain.Cards;
 #nullable enable annotations
+
 public partial class Card : AuditableEntity, ISoftDeleteSupport
 {
     public string Name { get; set; }
@@ -13,7 +14,7 @@ public partial class Card : AuditableEntity, ISoftDeleteSupport
     public float? Rating { get; set; }
     public string? PhoneNo { get; set; }
 
-    public string Address1 { get; set; }
+    public string? Address1 { get; set; }
     public string? Address2 { get; set; }
     public string? Address3 { get; set; }
     public string? City { get; set; }
@@ -34,5 +35,6 @@ public partial class Card : AuditableEntity, ISoftDeleteSupport
 
     public virtual Category Category { get; set; } 
     public List<SubCategory> SubCategories { get;  init; } = new();
+    public List<CardPicture> CardPictures { get;  init; } = new();
 
 }

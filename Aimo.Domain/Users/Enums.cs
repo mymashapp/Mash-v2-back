@@ -3,7 +3,8 @@
 public enum PictureType
 {
     ProfilePicture = 1,
-    Cover = 2
+    Cover = 2,
+    Media = 3
 }
 
 public enum Gender
@@ -12,7 +13,8 @@ public enum Gender
     Female = 2,
     Other = 3
 }
-public enum Group
+
+public enum GroupType
 {
     Two = 2,
     Three = 3,
@@ -20,8 +22,14 @@ public enum Group
 
 public enum CardType
 {
-     Yelp=1,
-     Own=2,
-     Airbnb=3,
-     Groupon=4
+    Yelp = 1,
+    Own = 2,
+    Airbnb = 3,
+    Groupon = 4
+}
+
+public enum SwipeType
+{
+    Left = 0,
+    Right = 1
 }

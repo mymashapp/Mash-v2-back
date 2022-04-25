@@ -28,5 +28,11 @@ internal class YelpMapperProfile : Profile, IOrderedMapperProfile
             .ForMember(t=>t.Category,i=>i.Ignore());
         
         CreateMap<SubCategory, Aimo.Domain.Categories.SubCategory>();
+        CreateMap<YelpRawResponsePicture, CardPictureDto>()
+            .ForMember(e => e.PictureUrl, d => d.MapFrom(x => x.CardPicture.Select(x => x)));
+
+        CreateMap<YelpCardDto, Card>()
+            .ForMember(t => t.SubCategories, i => i.Ignore())
+            .ForMember(t => t.Category, i => i.Ignore());
     }
 }

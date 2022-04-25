@@ -17,8 +17,8 @@ public partial class CardListDto : Dto
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public string Category { get; set; }
-    public string[] SubCategories { get; set; } = Array.Empty<string>();
-    public string[] Pictures { get; set; } = Array.Empty<string>();
+    public ICollection<string> SubCategories { get; set; } = new List<string>();
+    public ICollection<string>  Pictures { get; set; } = new List<string>();
 
     public DateTime DateUtc { get; set; }
 

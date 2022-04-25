@@ -8,7 +8,7 @@ namespace Aimo.Application.Users
         public PictureDtoCollectionValidator()
         {
             RuleFor(d => d)
-                .Must(v => !v.GroupBy(g => g.PictureType)
+                .Must(v => !v.GroupBy(g => g.PictureType).Where(x=>x.Key != PictureType.Media)
                     .Any(x => x.Count() > 1)).WithMessage(L["Validation.AllowedOnlyOnePicturePerType"]);
         }
     }

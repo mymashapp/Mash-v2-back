@@ -1,5 +1,4 @@
 ﻿using Aimo.Application.Cards;
-using Aimo.Data.Infrastructure.Yelp;
 using Aimo.Domain.Cards;
 using Microsoft.AspNetCore.Mvc;
 
