@@ -9,12 +9,12 @@ namespace Aimo.Data.Infrastructure;
 
 internal partial class EfRepository<TEntity> : EfRepository, IRepository<TEntity> where TEntity : Entity, new()
 {
-    private readonly IDataContext _dataContext;
+    protected readonly IDataContext DataContext;
 
-    public EfRepository(IDataContext context) : base(context) => _dataContext = context;
+    public EfRepository(IDataContext context) : base(context) => DataContext = context;
 
     private DbSet<TEntity> _entity = null!;
-    private DbSet<TEntity> EntitySet => _entity ??= (_dataContext as EfDataContext)!.Set<TEntity>();
+    private DbSet<TEntity> EntitySet => _entity ??= (DataContext as EfDataContext)!.Set<TEntity>();
 
     protected IQueryable<TEntity> AsNoTracking => EntitySet.AsNoTracking();
     protected IQueryable<TEntity> Table => EntitySet;

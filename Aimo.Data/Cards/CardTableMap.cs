@@ -13,8 +13,9 @@ public partial class CardTableMap : EntityTableMap<Card>
         builder.Property(t => t.Longitude).IsRequired();
         builder.Property(t => t.Latitude).IsRequired();
         builder.Property(t => t.ZipCode).IsRequired();
+        builder.Property(t => t.CategoryId).IsRequired(false);
 
-        builder.HasOne(t => t.Category).WithMany().HasForeignKey(t => t.CategoryId).OnDelete(DeleteBehavior.Restrict);
+        //builder.HasOne(t => t.Category).WithMany().HasForeignKey(t => t.CategoryId).OnDelete(DeleteBehavior.Restrict).IsRequired(false);
 
     }
 }

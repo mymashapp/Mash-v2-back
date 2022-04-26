@@ -7,10 +7,10 @@ public partial record Result
 {
     #region Properties
 
+    //public long Id { get; set; }
     public ConcurrentDictionary<string, string> Errors { get; set; } = new();
 
     public bool IsSucceeded { get; set; }
-    public long Id { get; set; }
 
     public dynamic Data { get; set; } = null!;
     public dynamic AdditionalData { get; set; } = null!;
@@ -57,12 +57,12 @@ public partial record Result
 
     public virtual Result From(Result other)
     {
+        //Id = other.Id;
         Data = other.Data;
         AdditionalData = other.AdditionalData;
         IsSucceeded = other.IsSucceeded;
         Message = other.Message;
         ResultType = other.ResultType;
-        Id = other.Id;
         Errors = other.Errors;
         return this;
     }
@@ -73,7 +73,6 @@ public partial record Result
 
     public static Result<T> Create<T>(T? data = default) where T : new()
     {
-
         var result = new Result<T>();
         return data is null ? result : result.SetData(data);
     }

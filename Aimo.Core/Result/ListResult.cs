@@ -6,13 +6,13 @@ public partial record ListResult<T> : Result<T>  where T : new()
 {
     public new ICollection<T> Data { get; set; } = new List<T>();
 
-    #region Datatable //TODO: remove 
+    /*#region Datatable //TODO: remove 
 
     public int RecordsTotal { get; set; }
     public int RecordsFiltered { get; set; }
     public int Draw { get; set; }
 
-    #endregion
+    #endregion*/
 
     #region Paging
 

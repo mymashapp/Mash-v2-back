@@ -26,7 +26,7 @@ public partial class Card : AuditableEntity, ISoftDeleteSupport
 
     public DateTime DateUtc { get; set; }
     
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
     public CardType? CardType { get; set; }
 

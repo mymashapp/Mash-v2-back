@@ -25,12 +25,12 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
 
         var wthOutLastDigit = dto.ZipCode.Length > 1 ? $"{dto.ZipCode[..^1]}%" : dto.ZipCode;
         Expression<Func<Card, bool>> zipLike = x => EF.Functions.Like(x.ZipCode, wthOutLastDigit);
-        
-        
+
+
         var cardQuery = AsNoTracking;
         var categoryQuery = AsNoTracking<Category>();
         var swipeHistories = AsNoTracking<SwipeHistory>();
-        
+
         var cardQueryExcludingSwipes =
             from cd in cardQuery
             join h in swipeHistories on cd.Id equals h.CardId into j
@@ -38,24 +38,22 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
 #pragma warning disable CS0472
             where h.CardId == null
 #pragma warning restore CS0472
-            select cd;
+            select new Card { Id = cd.Id, CardType = cd.CardType, ZipCode = cd.ZipCode, CategoryId = cd.CategoryId };
 
 
         #region Yelp
 
         var yelpCardQuery = categoryQuery.Select(ct => ct.Id).SelectMany(categoryId =>
             cardQueryExcludingSwipes.Where(c => c.CategoryId == categoryId && c.CardType == CardType.Yelp)
-                .Take(_appSetting.ItemCountPerProvider)
-        );
-        
-        
+                .Take(_appSetting.ItemCountPerProvider));
+
+
         //TODO: can hard code count for perf improvement
         var categoryCount = await categoryQuery.CountAsync();
-        
+
         if (await yelpCardQuery.CountAsync(zipEql) > _appSetting.ItemCountPerProvider * categoryCount)
         {
             yelpCardQuery = yelpCardQuery.Where(zipEql);
-
         }
         else if (await yelpCardQuery.CountAsync(zipLike) > _appSetting.ItemCountPerProvider * categoryCount)
         {
@@ -66,25 +64,32 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
 
         #region GroupOn
 
-        var groupOnCardQuery = cardQueryExcludingSwipes.Where(c => c.CardType == CardType.Groupon).Take(_appSetting.ItemCountPerProvider);
+        var groupOnCardQuery = cardQueryExcludingSwipes
+            .Where(c => c.CardType == CardType.Groupon)
+            .Take(_appSetting.ItemCountPerProvider);
+        //.Select(cd => new Card { Id = cd.Id, ZipCode = cd.ZipCode });
+
         if (await groupOnCardQuery.CountAsync(zipEql) > _appSetting.ItemCountPerProvider)
         {
             groupOnCardQuery = groupOnCardQuery.Where(zipEql);
-
         }
         else if (await groupOnCardQuery.CountAsync(zipLike) > _appSetting.ItemCountPerProvider)
         {
             groupOnCardQuery = groupOnCardQuery.Where(zipLike);
         }
+
         #endregion
-        
+
         #region AirBnB
 
-        var airBnbOnCardQuery = cardQueryExcludingSwipes.Where(c => c.CardType == CardType.Airbnb).Take(_appSetting.ItemCountPerProvider);
+        var airBnbOnCardQuery = cardQueryExcludingSwipes
+            .Where(c => c.CardType == CardType.Airbnb)
+            .Take(_appSetting.ItemCountPerProvider);
+        //.Select(cd => new Card { Id = cd.Id, ZipCode = cd.ZipCode });
+
         if (await airBnbOnCardQuery.CountAsync(zipEql) > _appSetting.ItemCountPerProvider)
         {
             airBnbOnCardQuery = airBnbOnCardQuery.Where(zipEql);
-
         }
         else if (await airBnbOnCardQuery.CountAsync(zipLike) > _appSetting.ItemCountPerProvider)
         {
@@ -92,7 +97,17 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
         }
 
         #endregion
-        return await yelpCardQuery.Union(groupOnCardQuery).Union(airBnbOnCardQuery).ProjectTo<CardListDto>().ToArrayAsync();
+
+        var cardIds = await yelpCardQuery.Select(x => x.Id)
+            .Union(groupOnCardQuery.Select(x => x.Id))
+            .Union(airBnbOnCardQuery.Select(x => x.Id)).ToArrayAsync();
+
+        var ret = cardQuery.Where(x => cardIds.Contains(x.Id)).Include(x => x.SubCategories)
+            .Include(x => x.CardPictures);
+
+
+        return await ret.ProjectTo<CardListDto>()
+            .ToArrayAsync();
     }
 
     public async Task<CardPictureDto[]> SearchCardsForPicture()
