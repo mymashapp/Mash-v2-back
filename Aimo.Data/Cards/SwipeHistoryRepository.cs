@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aimo.Data.Cards;
 
-internal partial class SwipeHistoryRepository : EfRepository<SwipeHistory>
+internal partial class SwipeHistoryRepository : EfRepository<SwipeHistory>,ISwipeHistoryRepository
 {
     public SwipeHistoryRepository(IDataContext context) : base(context)
     {

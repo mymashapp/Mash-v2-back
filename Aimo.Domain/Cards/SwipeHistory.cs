@@ -10,6 +10,6 @@ public partial class SwipeHistory : Entity
     public DateTime SeenAtUtc { get; set; }
 
     public SwipeType SwipeType { get; set; }
-    public Card Card { get; set; } = new();
-    public User User { get; set; } = new();
+    public Card Card { get; set; } 
+    public User User { get; set; }
 }
