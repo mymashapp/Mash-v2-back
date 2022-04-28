@@ -1,6 +1,5 @@
 using Aimo.Data.Infrastructure;
 using Aimo.Domain.Cards;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Aimo.Data.Cards;

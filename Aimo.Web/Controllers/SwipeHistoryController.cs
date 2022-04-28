@@ -1,7 +1,5 @@
-﻿using Aimo.Application.Interests;
-using Aimo.Application.SwipeHistorys;
-using Aimo.Domain.Cards;
-using Aimo.Domain.Interests;
+﻿using Aimo.Application.SwipeHistories;
+using Aimo.Domain.SwipeHistories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aimo.Web.Controllers;
@@ -26,7 +24,7 @@ public class SwipeHistoryController : ApiBaseController
     {
         return Result(await _swipeHistoryService.CreateAsync(dto));
     }
-    [HttpGet]
+    /*[HttpGet]
     public async Task<IActionResult> EditCard(int id)
     {
         return Result(await _swipeHistoryService.GetByIdAsync(id));
@@ -35,5 +33,5 @@ public class SwipeHistoryController : ApiBaseController
     public async Task<IActionResult> Update(SwipeHistoryDto dto)
     {
         return Result(await _swipeHistoryService.UpdateAsync(dto));
-    }
+    }*/
 }

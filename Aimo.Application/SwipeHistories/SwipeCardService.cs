@@ -1,29 +1,35 @@
 ﻿using Aimo.Core.Specifications;
 using Aimo.Data.Cards;
+using Aimo.Data.SwipeHistories;
 using Aimo.Data.Users;
-using Aimo.Domain.Cards;
-using Aimo.Domain.Data;
+using Aimo.Domain.Chats;
 using Aimo.Domain.Infrastructure;
+using Aimo.Domain.SwipeHistories;
+using Aimo.Domain.Users;
 using Aimo.Domain.Users.Entities;
 
-namespace Aimo.Application.SwipeHistorys;
+namespace Aimo.Application.SwipeHistories;
 
 internal partial class SwipeHistoryService : ISwipeHistoryService
 {
     private readonly ISwipeHistoryRepository _swipeHistoryRepository;
 
-    private readonly IRepository<SwipeGroup> _swipeGroupRepository;
+    private readonly ISwipeGroupRepository _swipeGroupRepository;
 
     //private readonly IRepository<SwipeGroupInterest> _swipeGroupInterestRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IChatRepository _chatRepository;
+    private readonly ICardRepository _cardRepository;
     private readonly SwipeHistoryDtoValidator _swipeHistoryDtoValidator;
     private readonly SwipeGroupDtoValidator _swipeGroupDtoValidator;
     private readonly SwipeGroupInterestDtoValidator _swipeGroupInterestDtoValidator;
 
     public SwipeHistoryService(ISwipeHistoryRepository swipeHistoryRepository,
-        IRepository<SwipeGroup> swipeGroupRepository,
+        ISwipeGroupRepository swipeGroupRepository,
         //  IRepository<SwipeGroupInterest> swipeGroupInterestRepository, 
         IUserRepository userRepository,
+        IChatRepository chatRepository,
+        ICardRepository cardRepository,
         SwipeHistoryDtoValidator swipeHistoryDtoValidator,
         SwipeGroupDtoValidator swipeGroupDtoValidator,
         SwipeGroupInterestDtoValidator swipeGroupInterestDtoValidator)
@@ -32,6 +38,8 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
         _swipeGroupRepository = swipeGroupRepository;
         // _swipeGroupInterestRepository = swipeGroupInterestRepository;
         _userRepository = userRepository;
+        _chatRepository = chatRepository;
+        _cardRepository = cardRepository;
         _swipeHistoryDtoValidator = swipeHistoryDtoValidator;
         _swipeGroupDtoValidator = swipeGroupDtoValidator;
         _swipeGroupInterestDtoValidator = swipeGroupInterestDtoValidator;
@@ -55,7 +63,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
 
         var swipeHistory = await _swipeHistoryRepository.FindAsync(x =>
             x.CardId == dto.CardId && x.UserId == dto.UserId && x.SwipeType == dto.SwipeType);
-        if(swipeHistory.Any())
+        if (swipeHistory.Any())
             return result.Failure(" you already  swipe this card ");
         try
         {
@@ -63,7 +71,11 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
             await _swipeHistoryRepository.AddAsync(entity);
 
             var affected = await _swipeHistoryRepository.CommitAsync();
-            await AddSwipeGroup(entity);
+
+            if (entity.SwipeType == SwipeType.Right)
+                await AddSwipeGroup(entity);
+
+
             return result.SetData(entity.MapTo(dto), affected).Success();
         }
         catch (Exception e)
@@ -72,10 +84,10 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
         }
     }
 
-    private async ResultTask AddSwipeGroup(SwipeHistory entity)
+    private async ResultTask AddSwipeGroup(SwipeHistory history)
     {
-        var user = await _userRepository.FirstOrDefaultAsync(x => x.Id == entity.UserId);
-        var swipeGroupDto = user.Map<SwipeGroupDto>();
+        var user = await _userRepository.FirstOrDefaultAsync(x => x.Id == history.UserId).ThrowIfNull();
+        var swipeGroupDto = user.MapTo(new SwipeGroupDto { CardId = history.CardId });
 
         var result = await _swipeGroupDtoValidator.ValidateResultAsync(swipeGroupDto);
         if (!result.IsSucceeded)
@@ -83,12 +95,17 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
 
         try
         {
-            swipeGroupDto.Id = 0;
-            var swipeGroupEntity = swipeGroupDto.Map<SwipeGroup>();
-            await _swipeGroupRepository.AddAsync(swipeGroupEntity);
+            var swipeGroup = swipeGroupDto.Map<SwipeGroup>();
+            await _swipeGroupRepository.AddAsync(swipeGroup);
 
             var affected = await _swipeGroupRepository.CommitAsync();
-            return result.SetData(entity.MapTo(swipeGroupDto), affected).Success();
+
+            if (history.SwipeType != SwipeType.Right)
+                return result.SetData(swipeGroup.MapTo(swipeGroupDto), affected).Success();
+
+            var chat = await AddChatAndChatUserAsync(history, swipeGroup, user);
+
+            return result.SetData(chat, affected).Success();
         }
         catch (Exception e)
         {
@@ -96,10 +113,46 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
         }
     }
 
-    private ResultTask AddSwipeGroupInterest()
+    private async Task<Chat?> AddChatAndChatUserAsync(SwipeHistory history, SwipeGroup swipeGroup, User? user)
     {
-        throw new NotImplementedException();
+        var matchingSwipeGroup = await _swipeGroupRepository.GetMatching(swipeGroup);
+
+        Chat? chat;
+        if (matchingSwipeGroup.Any())
+        {
+            chat = await _chatRepository.FirstOrDefaultAsync(x =>
+                x.GroupType == swipeGroup.GroupType && x.CardId == history.CardId);
+
+            if (chat is not null)
+            {
+                chat.Users.Add(user!);
+                _chatRepository.Update(chat);
+            }
+
+            if (chat != null && chat.Users.Count == (int)swipeGroup.GroupType)
+            {
+                var card = await _cardRepository.FirstOrDefaultAsync(x =>
+                    x.Id == swipeGroup.CardId && x.CardType == CardType.Own);
+                if (card != null) _cardRepository.Remove(card);
+                await _cardRepository.CommitAsync();
+            }
+        }
+        else
+        {
+            chat = new Chat
+            {
+                CardId = history.CardId,
+                GroupType = swipeGroup.GroupType
+            };
+            chat.Users.Add(user!);
+            await _chatRepository.AddAsync(chat);
+        }
+
+        await _chatRepository.CommitAsync();
+
+        return chat;
     }
+
 
     public async ResultTask UpdateAsync(SwipeHistoryDto dto)
     {

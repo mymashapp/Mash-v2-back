@@ -14,7 +14,8 @@
         
         public string Bio { get; set; }
         public bool IsNew { get; set; }
-        
+        public bool IsVaccinated { get; set; }
+
         public int PreferenceAgeTo { get; set; }
         public int PreferenceAgeFrom { get; set; }
         public GroupType? PreferenceGroupOf { get; set; }

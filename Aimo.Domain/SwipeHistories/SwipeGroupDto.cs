@@ -1,10 +1,11 @@
 ﻿using Aimo.Domain.Users;
 
-namespace Aimo.Domain.Cards;
+namespace Aimo.Domain.SwipeHistories;
 
 public partial class SwipeGroupDto : Dto
 {
     public int UserId { get; set; }
+    public int CardId { get; set; }
     public int AgeTo { get; set; }
     public int AgeFrom { get; set; }
     public Gender Gender { get; set; }

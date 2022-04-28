@@ -1,6 +1,6 @@
 ﻿using Aimo.Domain.Interests;
 
-namespace Aimo.Domain.Cards;
+namespace Aimo.Domain.SwipeHistories;
 
 public partial class SwipeGroupInterest 
 {

@@ -5,6 +5,7 @@ using Aimo.Domain.Cards;
 using Aimo.Domain.Categories;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;
+using Aimo.Domain.SwipeHistories;
 using Aimo.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 

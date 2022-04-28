@@ -1,6 +1,6 @@
 ﻿using Aimo.Domain.Users;
 
-namespace Aimo.Domain.Cards;
+namespace Aimo.Domain.SwipeHistories;
 
 public partial class SwipeHistoryDto : Dto
 {

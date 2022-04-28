@@ -1,12 +1,13 @@
-#nullable disable 
+#nullable disable
 #nullable enable annotations
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
 namespace Aimo.Domain.Infrastructure;
 
-public static class AutoMap 
+public static class AutoMap
 {
     public static IMapper Mapper { get; private set; }
 
@@ -16,6 +17,7 @@ public static class AutoMap
         $"{nameof(AutoMap)} : {source} can not be null or empty";
 
 
+    [MemberNotNull(nameof(MapperConfiguration), nameof(Mapper))]
     public static void Init(MapperConfiguration config)
     {
         MapperConfiguration = config;
@@ -24,14 +26,16 @@ public static class AutoMap
 
     #region Utilities
 
+    [return: NotNull]
     public static TDestination Map<TDestination>(this object source)
     {
-        source.ThrowIfNull(GetNullExceptionMessage(nameof(source)));
-        return Mapper.Map<TDestination>(source);
+        source = source.ThrowIfNull(GetNullExceptionMessage(nameof(source)));
+        return (Mapper.Map<TDestination>(source))!;
     }
 
+    [return: NotNull]
     public static TDestination MapTo<TSource, TDestination>(this TSource source, TDestination destination) =>
-        Map(source, destination);
+        Map(source, destination)!;
 
     public static TDestination Map<TSource, TDestination>(TSource source, TDestination destination)
     {
@@ -50,7 +54,8 @@ public static class AutoMap
     {
         source.ThrowIfNull(GetNullExceptionMessage(nameof(source)));
 
-        return destination is null ? Mapper.Map(source, sourceType, destinationType)
+        return destination is null
+            ? Mapper.Map(source, sourceType, destinationType)
             : Mapper.Map(source, destination, sourceType, destinationType);
     }
 
@@ -91,7 +96,7 @@ public static class AutoMap
             return default;
         }
     }
-    
+
     public static T MapResultTo<T>(this Result result, T obj = default)
     {
         try
@@ -108,19 +113,21 @@ public static class AutoMap
     #endregion
 
     #region Result of T Extensions
-    public static Result<T> CopyFrom<T,TO>(this Result<T> result, Result<TO> other) where TO : new() where T : new()
+
+    public static Result<T> CopyFrom<T, TO>(this Result<T> result, Result<TO> other) where TO : new() where T : new()
     {
         result.From(other);
         try
         {
-            AutoMap.Map(other.Data,result. Data);
-            result.AdditionalData =result.AdditionalData;
+            AutoMap.Map(other.Data, result.Data);
+            result.AdditionalData = result.AdditionalData;
         }
         catch (AppException)
         {
         }
+
         return result;
     }
-    #endregion
 
+    #endregion
 }

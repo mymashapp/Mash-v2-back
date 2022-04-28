@@ -1,9 +1,8 @@
 ﻿using Aimo.Data.Infrastructure;
-using Aimo.Domain.Cards;
 using Aimo.Domain.Data;
-using Microsoft.EntityFrameworkCore;
+using Aimo.Domain.SwipeHistories;
 
-namespace Aimo.Data.Cards;
+namespace Aimo.Data.SwipeHistories;
 
 internal partial class SwipeHistoryRepository : EfRepository<SwipeHistory>,ISwipeHistoryRepository
 {

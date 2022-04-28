@@ -1,9 +1,10 @@
 ﻿using Aimo.Core.Infrastructure;
-using Aimo.Domain.Cards;
+using Aimo.Domain.Chats;
+using Aimo.Domain.SwipeHistories;
 using Aimo.Domain.Users.Entities;
 using AutoMapper;
 
-namespace Aimo.Application.SwipeHistorys;
+namespace Aimo.Application.SwipeHistories;
 
 internal class SwipeHistoryMapperProfile : Profile, IOrderedMapperProfile
 {
@@ -19,14 +20,18 @@ internal class SwipeHistoryMapperProfile : Profile, IOrderedMapperProfile
             .ForMember(d => d.AgeFrom, e => e.MapFrom(x => x.PreferenceAgeFrom))
             .ForMember(d => d.AgeTo, e => e.MapFrom(x => x.PreferenceAgeTo))
             .ForMember(d => d.GroupType, e => e.MapFrom(x => x.PreferenceGroupOf))
-            .ReverseMap();
-        CreateMap<SwipeGroup, SwipeGroupDto>().ReverseMap();
-       
+            .ForMember(d => d.Id, o => o.Ignore());
+
+        CreateMap<SwipeGroup, SwipeGroupDto>().ReverseMap(); 
+
         CreateMap<SwipeGroup, SwipeGroupInterestDto>()
-            .ForMember(d=>d.SwipeGroupId,e=>e.MapFrom(x=>x.Id))
-
+            .ForMember(d => d.SwipeGroupId, e => e.MapFrom(x => x.Id))
             .ReverseMap();
 
+        #region chat
 
+        CreateMap<Chat, ChatDto>().ReverseMap();
+
+        #endregion
     }
 }

@@ -1,4 +1,4 @@
-using Aimo.Domain.Cards;
+using Aimo.Domain.SwipeHistories;
 using Aimo.Domain.Users.Entities;
 
 namespace Aimo.Domain.Interests;

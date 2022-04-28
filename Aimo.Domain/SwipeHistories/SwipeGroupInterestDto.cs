@@ -1,4 +1,4 @@
-﻿namespace Aimo.Domain.Cards;
+﻿namespace Aimo.Domain.SwipeHistories;
 
 public partial class SwipeGroupInterestDto:Dto 
 {

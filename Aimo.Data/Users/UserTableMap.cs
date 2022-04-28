@@ -17,6 +17,7 @@ namespace Aimo.Data.Users
 
             builder.HasMany(t => t.Interests).WithMany(t => t.Users).UsingEntity<UserInterest>();
             builder.HasMany(t => t.Pictures).WithOne().HasForeignKey(t=>t.UserId);
+            
         }
     }
 }

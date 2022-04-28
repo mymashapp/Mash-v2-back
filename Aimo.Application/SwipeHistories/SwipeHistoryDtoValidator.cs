@@ -1,7 +1,7 @@
-﻿using Aimo.Domain.Cards;
+﻿using Aimo.Domain.SwipeHistories;
 using FluentValidation;
 
-namespace Aimo.Application.SwipeHistorys;
+namespace Aimo.Application.SwipeHistories;
 
 public partial class SwipeHistoryDtoValidator : Validator<SwipeHistoryDto>
 {

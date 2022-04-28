@@ -1,4 +1,5 @@
-﻿using Aimo.Domain.Interests;
+﻿using Aimo.Domain.Chats;
+using Aimo.Domain.Interests;
 
 namespace Aimo.Domain.Users.Entities
 {
@@ -19,13 +20,14 @@ namespace Aimo.Domain.Users.Entities
         public int PreferenceAgeFrom { get; set; }
         public Gender? PreferenceGender { get; set; }
         public GroupType? PreferenceGroupOf { get; set; }
-
-
+        public bool IsVaccinated { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsActive { get; set; }
         public bool IsNew { get; set; }
 
         public List<Interest> Interests { get; init; } = new();
         public List<UserPicture> Pictures { get; init; } = new();
+        public List<Chat> Chats { get; init; } = new();
+
     }
 }

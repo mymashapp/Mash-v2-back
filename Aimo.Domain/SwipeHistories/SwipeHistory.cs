@@ -1,7 +1,8 @@
-﻿using Aimo.Domain.Users;
+﻿using Aimo.Domain.Cards;
+using Aimo.Domain.Users;
 using Aimo.Domain.Users.Entities;
 
-namespace Aimo.Domain.Cards;
+namespace Aimo.Domain.SwipeHistories;
 
 public partial class SwipeHistory : Entity
 {

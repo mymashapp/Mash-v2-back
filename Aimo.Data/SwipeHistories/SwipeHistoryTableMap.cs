@@ -1,9 +1,9 @@
 ﻿using Aimo.Data.Infrastructure;
-using Aimo.Domain.Cards;
+using Aimo.Domain.SwipeHistories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Aimo.Data.Cards;
+namespace Aimo.Data.SwipeHistories;
 
 public partial class SwipeHistoryTableMap : EntityTableMap<SwipeHistory>
 {
