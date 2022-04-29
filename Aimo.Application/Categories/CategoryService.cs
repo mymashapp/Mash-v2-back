@@ -41,9 +41,9 @@ internal partial class CategoryService : ICategoryService
             : result.Failure(ResultMessage.NotFound);
     }
 
-    public async Task<IdNameDto[]> GetAllCategory()
+    public async Task<CategoryDto[]> GetAllCategory()
     {
-        return (await _categoryRepository.FindAsync(x => true)).Map<IdNameDto[]>();
+        return (await _categoryRepository.FindAsync(x => true)).Map<CategoryDto[]>();
     }
 
     public async ResultTask CreateAsync(CategoryDto dto)
@@ -148,7 +148,7 @@ internal partial class CategoryService : ICategoryService
 
 public partial interface ICategoryService
 {
-    Task<IdNameDto[]> GetAllCategory();
+    Task<CategoryDto[]> GetAllCategory();
     ResultTask GetByIdAsync(int id);
     ResultTask CreateAsync(CategoryDto dto);
     ResultTask UpdateAsync(CategoryDto viewDto);

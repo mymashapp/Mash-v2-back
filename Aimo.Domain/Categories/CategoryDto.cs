@@ -2,14 +2,9 @@ namespace Aimo.Domain.Categories;
 /// <summary>
 /// this is categorydto
 /// </summary>
-public partial class CategoryDto : Dto
+public partial class CategoryDto : IdNameDto
 {
-    public string Name { get; set; }
-    public int DisplayOrder { get; set; }
     public bool IsActive { get; set; }
 
-    public ICollection<SubCategory> SubCategories { get; set; } = Array.Empty<SubCategory>();
-
-   // public List<SubCategoryWithCategoryDto> SubCategories { get; init; } = new();
-
+    public ICollection<SubCategory> SubCategories { get; set; } = new List<SubCategory>();
 }
