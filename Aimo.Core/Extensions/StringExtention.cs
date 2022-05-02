@@ -278,6 +278,6 @@ public static class StringExtensions
             return defaultValue;
         }
     }
-
+    
     public static int[]? ToIntArray(this string value) => value?.Split(',').Where(x => int.TryParse(x, out _)).Select(int.Parse).ToArray();
 }

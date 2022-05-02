@@ -7,7 +7,8 @@ public partial record Result
 {
     #region Properties
 
-    //public long Id { get; set; }
+    //public int Id { get; set; }
+
     public ConcurrentDictionary<string, string> Errors { get; set; } = new();
 
     public bool IsSucceeded { get; set; }
@@ -20,13 +21,13 @@ public partial record Result
 
     #endregion
 
-   
+
     public static Result Create(dynamic? data = default)
     {
         var result = new Result();
         return data is null ? result : result.SetData(data);
     }
-    
+
     #region Methods
 
     public virtual Result Failure(string message)
@@ -36,6 +37,8 @@ public partial record Result
         ResultType = ResultType.Error;
         return this;
     }
+
+    public virtual Result Exception(Exception ex) => Failure(ex.GetExceptionMessage());
 
     public virtual Result Success(string? message = null, params object[]? args)
     {
@@ -79,7 +82,7 @@ public partial record Result
 
     public static ListResult<T> Create<T>(ICollection<T> data) where T : new()
     {
-       return new ListResult<T>().SetData(data);
+        return new ListResult<T>().SetData(data);
     }
 
     /*public static async Task<Result<List<T>>> CreateAsync<T>(Task<IEnumerable<T>> dataTask) => Create(await dataTask);*/

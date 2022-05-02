@@ -82,7 +82,7 @@ namespace Aimo.Application.Users
             }
             catch (Exception e)
             {
-                return result.Failure(e.Message);
+                return result.Exception(e);
             }
 
             return result.Success();
@@ -119,7 +119,7 @@ namespace Aimo.Application.Users
             }
             catch (Exception e)
             {
-                return result.Failure(e.Message);
+                return result.Exception(e);
             }
         }
 
@@ -139,7 +139,7 @@ namespace Aimo.Application.Users
             }
             catch (Exception e)
             {
-                return result.Failure(e.Message);
+                return result.Exception(e);
             }
         }
 

@@ -20,7 +20,6 @@ COPY Aimo.Data/. ./Aimo.Data/
 COPY Aimo.Domain/. ./Aimo.Domain/
 COPY Aimo.Web/. ./Aimo.Web/
 COPY Aimo.Web.Framework ./Aimo.Web.Framework/
-COPY Firebase/. ./Firebase
 RUN dotnet publish Aimo.Web/ -c Release -o out 
 
 # Build runtime image

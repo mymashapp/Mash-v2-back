@@ -80,7 +80,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -105,11 +105,11 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
 
             var chat = await AddChatAndChatUserAsync(history, swipeGroup, user);
 
-            return result.SetData(chat, affected).Success();
+            return result.SetData(chat!, affected).Success();
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -173,7 +173,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -193,7 +193,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 }

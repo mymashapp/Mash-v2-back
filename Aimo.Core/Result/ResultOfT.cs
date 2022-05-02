@@ -1,5 +1,6 @@
 ﻿#nullable disable
 namespace Aimo.Core;
+
 [Serializable]
 public partial record Result<T> : Result where T : new()
 {
@@ -8,6 +9,12 @@ public partial record Result<T> : Result where T : new()
     public new Result<T> Failure(string message)
     {
         base.Failure(message);
+        return this;
+    }
+
+    public new Result<T> Exception(Exception ex)
+    {
+        base.Exception(ex);
         return this;
     }
 

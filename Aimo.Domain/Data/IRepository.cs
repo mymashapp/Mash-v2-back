@@ -1,6 +1,5 @@
 ﻿using System.Data.Common;
 using System.Linq.Expressions;
-using Aimo.Core.Specifications;
 
 namespace Aimo.Domain.Data;
 
@@ -8,13 +7,16 @@ public partial interface IRepository
 {
     Task<TEntity?> GetByIdAsync<TEntity>(int id, CancellationToken ct = default) where TEntity : Entity;
 
-    Task<TEntity> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>>? predicate = null)
+    Task<TEntity?> FirstOrDefaultAsync<TEntity>(
+        Expression<Func<TEntity, bool>>? predicate = null,
+        params Expression<Func<TEntity, object>>[] include)
         where TEntity : Entity;
 
-    Task<TEntity[]> FindBySpecAsync<TEntity>(Specification<TEntity> spec, bool explicitControl = false)
-        where TEntity : Entity;
+    /*Task<TEntity[]> FindBySpecAsync<TEntity>(Specification<TEntity> spec, bool explicitControl = false)
+        where TEntity : Entity;*/
 
-    Task<TEntity[]> Find<TEntity>(Expression<Func<TEntity, bool>>? predicate = null) where TEntity : Entity;
+    Task<TEntity[]> FindAsync<TEntity>(Expression<Func<TEntity, bool>>? predicate = null,
+        CancellationToken ct = default) where TEntity : Entity;
 
     Task AddAsync<TEntity>(TEntity entity, CancellationToken ct = default) where TEntity : Entity;
     Task AddBulkAsync<TEntity>(IEnumerable<TEntity> entities, CancellationToken ct = default) where TEntity : Entity;
@@ -49,10 +51,9 @@ public partial interface IRepository
 
     Task BeginTransactionAsync(CancellationToken ct = default);
     Task RollbackAsync(CancellationToken ct = default);
+    Task<int> CommitAsync(DbTransaction? transaction = null, CancellationToken ct = default);
 
     #endregion
-
-    Task<int> CommitAsync(DbTransaction? transaction = null, CancellationToken ct = default);
 
 
     Task<ListResult<TEntity>> ToListResultAsync<TEntity, TFilter>(TFilter filter)

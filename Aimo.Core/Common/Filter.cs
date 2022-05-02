@@ -8,13 +8,13 @@ public abstract class Filter : IdBase
     public virtual int? PageIndex
     {
         get => _pageIndex;
-        set => _pageIndex = value is null || value == 0 ? 1 : value;
+        set => _pageIndex = value is null or 0 ? 1 : value;
     }
 
     public virtual int? Size
     {
         get => _size;
-        set => _size =  value is null || value == 0 ?  AimoDefaults.DefaultPageSize : value;
+        set => _size = value is null or 0 ? AimoDefaults.DefaultPageSize : value;
     }
     
     public virtual string? SortColumn { get; set; }

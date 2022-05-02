@@ -5,8 +5,8 @@ public enum ResultType
 {
     Error = 0,
     Success = 1,
-    Info = 2,
-    Warning = 3
+    Warning = 2,
+    Info = 3
 }
 
 public enum Language

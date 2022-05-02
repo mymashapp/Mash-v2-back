@@ -1,6 +1,7 @@
 ﻿using Aimo.Core.Infrastructure;
 using Aimo.Data.Infrastructure.Yelp;
 using Aimo.Domain.Cards;
+using Aimo.Domain.Users;
 using AutoMapper;
 
 namespace Aimo.Application.Cards;
@@ -13,7 +14,19 @@ internal class CardMapperProfile : Profile, IOrderedMapperProfile
     {
         CreateMap<Card, CardDto>()
             .ReverseMap()
-            .ForMember(e => e.PictureUrl, opt => opt.Condition(d => d.PictureUrl.IsNotEmpty()));
+            .ForMember(e => e.PictureUrl, opt => opt.Condition(d => d.PictureUrl.IsNotEmpty()))
+            .AfterMap((d, e) =>
+            {
+                switch (d.CardType)
+                {
+                    case CardType.Own:
+                    {
+                        e.Alias = e.Alias.IsNullOrWhiteSpace() ? $"{d.Name}-{Guid.NewGuid()}" : e.Alias;
+                        e.Url = string.Empty;
+                        break;
+                    }
+                }
+            });
 
         CreateMap<Card, CardPictureDto>()
             .ForMember(e => e.CardId, d => d.MapFrom(x => x.Id));

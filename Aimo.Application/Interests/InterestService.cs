@@ -46,7 +46,7 @@ internal partial class InterestService:IInterestService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -69,7 +69,7 @@ internal partial class InterestService:IInterestService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -89,7 +89,7 @@ internal partial class InterestService:IInterestService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 

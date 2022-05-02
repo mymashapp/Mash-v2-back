@@ -41,9 +41,11 @@ internal partial class CategoryService : ICategoryService
             : result.Failure(ResultMessage.NotFound);
     }
 
-    public async Task<CategoryDto[]> GetAllCategory()
+    public async Task<ListResult<CategoryDto>> GetAllCategory()
     {
-        return (await _categoryRepository.FindAsync(x => true)).Map<CategoryDto[]>();
+        var categories = await _categoryRepository.FindAsync(x => true);
+        var result = Result.Create(categories.Map<CategoryDto[]>());
+        return categories.Any() ? result.Success() : result.Failure(ResultMessage.NotFound);
     }
 
     public async ResultTask CreateAsync(CategoryDto dto)
@@ -68,7 +70,7 @@ internal partial class CategoryService : ICategoryService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -81,7 +83,6 @@ internal partial class CategoryService : ICategoryService
 
         try
         {
-            
             var entity = new SubCategory()
             {
                 Alias = subCategory.Alias,
@@ -96,7 +97,7 @@ internal partial class CategoryService : ICategoryService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -119,7 +120,7 @@ internal partial class CategoryService : ICategoryService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -139,7 +140,7 @@ internal partial class CategoryService : ICategoryService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -148,7 +149,7 @@ internal partial class CategoryService : ICategoryService
 
 public partial interface ICategoryService
 {
-    Task<CategoryDto[]> GetAllCategory();
+    Task<ListResult<CategoryDto>> GetAllCategory();
     ResultTask GetByIdAsync(int id);
     ResultTask CreateAsync(CategoryDto dto);
     ResultTask UpdateAsync(CategoryDto viewDto);

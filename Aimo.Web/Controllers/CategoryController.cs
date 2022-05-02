@@ -12,11 +12,11 @@ public class CategoryController : ApiBaseController
     {
         _categoryService = categoryService;
     }
-    
-    [HttpGet]
+
+    [HttpGet/*, ProducesResponseType(typeof(ListResult<CategoryDto>), StatusCodes.Status200OK)*/]
     public async Task<IActionResult> GetAllCategory()
     {
-        return Ok(await _categoryService.GetAllCategory());
+        return Result(await _categoryService.GetAllCategory());
     }
     
     [HttpPost]

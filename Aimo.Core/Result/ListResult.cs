@@ -1,8 +1,9 @@
 #nullable disable
+#nullable enable annotations
 namespace Aimo.Core;
 
 [Serializable]
-public partial record ListResult<T> : Result<T>  where T : new()
+public partial record ListResult<T> : Result<T> where T : new()
 {
     public new ICollection<T> Data { get; set; } = new List<T>();
 
@@ -56,6 +57,12 @@ public partial record ListResult<T> : Result<T>  where T : new()
         return this;
     }
 
+    public new ListResult<T> Exception(Exception ex)
+    {
+        base.Exception(ex);
+        return this;
+    }
+
     public new ListResult<T> Success(string message = null, params object[] args)
     {
         base.Success(message, args);
@@ -70,12 +77,11 @@ public partial record ListResult<T> : Result<T>  where T : new()
         return this;
     }
 
-    public ListResult<T> SetData(ICollection<T> data, dynamic additionalData = null)
+    public ListResult<T> SetData(ICollection<T> data, dynamic? additionalData = default)
     {
-        ((Result)this).Data = data;
-        base.AdditionalData = additionalData;
-        
+        (this as Result).Data = data;
         Data = data;
+        AdditionalData = additionalData;
         return this;
     }
 

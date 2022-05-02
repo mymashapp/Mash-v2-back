@@ -7,10 +7,12 @@ namespace Aimo.Domain.Data;
 public partial interface IRepository<TEntity> where TEntity : new()
 {
     Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default);
-    Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null);
+
+    Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null,
+        params Expression<Func<TEntity, object>>[] include);
 
     Task<TEntity[]> FindBySpecAsync(Specification<TEntity> spec, bool explicitControl = false);
-    Task<TEntity[]> FindAsync(Expression<Func<TEntity, bool>>? predicate = null);
+    Task<TEntity[]> FindAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);
 
     Task AddAsync(TEntity entity, CancellationToken ct = default);
     Task AddBulkAsync(IEnumerable<TEntity> entities, CancellationToken ct = default);

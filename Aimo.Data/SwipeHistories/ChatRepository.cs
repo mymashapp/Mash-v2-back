@@ -2,7 +2,6 @@
 using Aimo.Data.Infrastructure;
 using Aimo.Domain.Chats;
 using Aimo.Domain.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace Aimo.Data.SwipeHistories;
 
@@ -12,17 +11,10 @@ internal partial class ChatRepository : EfRepository<Chat>, IChatRepository
     {
     }
 
-    public override async Task<Chat?> FirstOrDefaultAsync(Expression<Func<Chat, bool>>? predicate = null)
+    public  async Task<Chat?> FirstOrDefaultAsync(Expression<Func<Chat, bool>>? predicate = null)
     {
-        var query = from chat in GetQueryable<Chat>().Include(x => x.Users)
-            select chat;
-
-        return predicate is not null
-            ? await query.FirstOrDefaultAsync(predicate)
-            : await query.FirstOrDefaultAsync();
+        return await FirstOrDefaultAsync(predicate, include: x => x.Users);
     }
-
-
 }
 
 public partial interface IChatRepository : IRepository<Chat>

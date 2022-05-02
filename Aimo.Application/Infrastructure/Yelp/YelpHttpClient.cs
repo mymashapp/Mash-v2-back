@@ -68,7 +68,7 @@ public class YelpHttpClient : HttpClientBase, IYelpHttpClient
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -103,7 +103,7 @@ public class YelpHttpClient : HttpClientBase, IYelpHttpClient
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 }

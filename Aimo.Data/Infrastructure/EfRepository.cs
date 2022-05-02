@@ -5,7 +5,6 @@ using Aimo.Core.Specifications;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace Aimo.Data.Infrastructure;
 
@@ -35,12 +34,13 @@ internal partial class EfRepository : IRepository
         return await query.ToArrayAsync();
     }
 
-    public virtual async Task<TEntity[]> Find<TEntity>(Expression<Func<TEntity, bool>>? predicate = null)
+    public virtual async Task<TEntity[]> FindAsync<TEntity>(Expression<Func<TEntity, bool>>? predicate = null,
+        CancellationToken ct = default)
         where TEntity : Entity
     {
         IQueryable<TEntity> query = EntitySet<TEntity>();
         if (predicate is not null) query = query.Where(predicate);
-        return await query.ToArrayAsync();
+        return await query.ToArrayAsync(ct);
     }
 
     public virtual async Task<ListResult<TEntity>> ToListResultAsync<TEntity, TFilter>(TFilter filter)
@@ -55,7 +55,7 @@ internal partial class EfRepository : IRepository
         }
         catch (Exception e)
         {
-            return Result.Create(Array.Empty<TEntity>()).Failure(e.Message);
+            return Result.Create(Array.Empty<TEntity>()).Exception(e);
         }
     }
 
@@ -72,21 +72,29 @@ internal partial class EfRepository : IRepository
         }
         catch (Exception e)
         {
-            return Result.Create(Array.Empty<TDto>()).Failure(e.Message);
+            return Result.Create(Array.Empty<TDto>()).Exception(e);
         }
     }
 
-    protected virtual IQueryable<TEntity> GetQueryable<TEntity>(
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
+    protected static Expression<Func<TEntity, object>>[] IncludeAll<TEntity>(
+        params Expression<Func<TEntity, object>>[] expressions)
+    {
+        /*Func<TEntity, object> func = x => x;
+        Expression< Func<TEntity, object>> expr = a => func(a);
+        return expr;*/
+        return expressions;
+    }
+
+    protected virtual IQueryable<TEntity> GetQueryable<TEntity>(Expression<Func<TEntity, bool>>? predicate = null,
         int? skip = null, int? take = null,
         string? orderBy = null, SortDirection orderDirection = SortDirection.Asc,
-        bool? isDeleted = false, bool? isActive = null
-    ) where TEntity : Entity
+        bool? isActive = null, bool? isDeleted = null,
+        params Expression<Func<TEntity, object>>[] include) where TEntity : Entity
     {
         IQueryable<TEntity> query = EntitySet<TEntity>();
 
-        if (include is not null) query = include(query);
+        if (include.Any())
+            query = include.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
         if (predicate is not null) query = query.Where(predicate);
 
@@ -110,11 +118,19 @@ internal partial class EfRepository : IRepository
         return query;
     }
 
-    public virtual async Task<TEntity> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>>? predicate = null)
+    public virtual async Task<TEntity?> FirstOrDefaultAsync<TEntity>(
+        Expression<Func<TEntity, bool>>? predicate = null,
+        params Expression<Func<TEntity, object>>[] include)
+        where TEntity : Entity
+    {
+        return (await GetQueryable(predicate, include: include)!.FirstOrDefaultAsync())!;
+    }
+
+    /*public virtual async Task<TEntity?> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>>? predicate = null)
         where TEntity : Entity
     {
         return (await GetQueryable(predicate)!.FirstOrDefaultAsync())!;
-    }
+    }*/
 
     public virtual async Task AddAsync<TEntity>(TEntity entity, CancellationToken ct = default) where TEntity : Entity
     {

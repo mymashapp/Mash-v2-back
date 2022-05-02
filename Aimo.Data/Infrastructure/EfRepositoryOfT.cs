@@ -25,8 +25,9 @@ internal partial class EfRepository<TEntity> : EfRepository, IRepository<TEntity
     public virtual async Task<TEntity[]> FindBySpecAsync(Specification<TEntity> spec,
         bool explicitControl = false) => await base.FindBySpecAsync(spec, explicitControl);
 
-    public virtual async Task<TEntity[]> FindAsync(Expression<Func<TEntity, bool>>? predicate = null) =>
-        await base.Find(predicate);
+    public virtual async Task<TEntity[]> FindAsync(Expression<Func<TEntity, bool>>? predicate = null,
+        CancellationToken ct = default) =>
+        await base.FindAsync(predicate, ct);
 
     public virtual async Task<ListResult<TEntity>> ToListResultAsync<TFilter>(TFilter filter)
         where TFilter : Filter =>
@@ -38,8 +39,12 @@ internal partial class EfRepository<TEntity> : EfRepository, IRepository<TEntity
         await base.ToListResultAsync<TEntity, TDto, TFilter>(filter);
 
 
-    public virtual async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null) =>
-        await base.FirstOrDefaultAsync(predicate);
+    /*public virtual async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null) =>
+        await base.FirstOrDefaultAsync(predicate);*/
+
+    public virtual async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>>? predicate = null,
+        params Expression<Func<TEntity, object>>[] include) =>
+        await base.FirstOrDefaultAsync(predicate, include);
 
     public virtual async Task AddAsync(TEntity entity, CancellationToken ct = default) =>
         await base.AddAsync(entity, ct);
@@ -89,36 +94,15 @@ internal partial class EfRepository<TEntity> : EfRepository, IRepository<TEntity
 
     protected virtual IQueryable<TEntity> FromSqlInterpolatedQueryable(FormattableString sql) =>
         base.FromSqlInterpolatedQueryable<TEntity>(sql);
+
+    protected static Expression<Func<TEntity, object>>[]
+        IncludeAll(params Expression<Func<TEntity, object>>[] expressions) => IncludeAll<TEntity>(expressions);
+
+    protected IQueryable<TEntity> GetQueryable(
+        Expression<Func<TEntity, bool>>? predicate = null,
+        int? skip = null, int? take = null,
+        string? orderBy = null, SortDirection orderDirection = SortDirection.Asc,
+        bool? isActive = null, bool? isDeleted = null,
+        params Expression<Func<TEntity, object>>[] include)
+        => GetQueryable<TEntity>(predicate, skip, take, orderBy, orderDirection, isDeleted, isActive, include);
 }
-
-
-/*internal partial class EfRepository<TEntity>
-{
-    public virtual async Task<ListResult<TEntity>> ToListResultAsync1<TFilter>(TFilter filter)
-        where TFilter : Filter =>
-        await base.ToListResultAsync<TEntity, TFilter>(filter);
-
-    public new virtual async Task<ListResult<TDto>> ToListResultAsync1<TDto>(TFilter filter)
-        where TDto : class, new()
-    {
-        var wrapper = new Wrapper<TFilter>(this);
-        return wrapper.ToListResultAsync1<TDto>(filter);
-    }
-
-    public partial class Wrapper<TFilter> where TFilter : Filter
-    {
-        private readonly EfRepository<TEntity> _repository;
-
-        public Wrapper(EfRepository<TEntity> repository)
-        {
-            _repository = repository;
-        }
-            
-        public async Task<ListResult<TDto>> ToListResultAsync1<TDto>(TFilter filter)
-            where TDto : class, new()
-        {
-            return await _repository.ToListResultAsync<TEntity, TDto, TFilter>(filter);
-        }
-    } 
-    
-}*/

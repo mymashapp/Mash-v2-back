@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using Aimo.Data.Infrastructure;
-using Aimo.Domain;
 using Aimo.Domain.Cards;
 using Aimo.Domain.Categories;
 using Aimo.Domain.Data;

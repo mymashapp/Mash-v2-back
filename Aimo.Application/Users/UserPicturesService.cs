@@ -80,7 +80,7 @@ namespace Aimo.Application.Users
             }
             catch (Exception e)
             {
-                return Result.Create<UserPicture>().Failure(e.Message);
+                return Result.Create<UserPicture>().Exception(e);
             }
         }
     }

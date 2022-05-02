@@ -146,7 +146,7 @@ internal partial class CardService : ICardService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -177,7 +177,7 @@ internal partial class CardService : ICardService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
@@ -208,7 +208,7 @@ internal partial class CardService : ICardService
         }
         catch (Exception e)
         {
-            return result.Failure(e.Message);
+            return result.Exception(e);
         }
     }
 
