@@ -4,15 +4,13 @@ using Aimo.Domain.SwipeHistories;
 
 namespace Aimo.Data.SwipeHistories;
 
-internal partial class SwipeHistoryRepository : EfRepository<SwipeHistory>,ISwipeHistoryRepository
+internal partial class SwipeHistoryRepository : EfRepository<SwipeHistory>, ISwipeHistoryRepository
 {
     public SwipeHistoryRepository(IDataContext context) : base(context)
     {
     }
-
-   
 }
 
-public partial interface ISwipeHistoryRepository :IRepository<SwipeHistory>
+public partial interface ISwipeHistoryRepository : IRepository<SwipeHistory>
 {
 }

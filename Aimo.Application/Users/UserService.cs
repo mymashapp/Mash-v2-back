@@ -76,7 +76,7 @@ namespace Aimo.Application.Users
                 if (entity is null)
                     return result.Failure(ResultMessage.NotFound);
 
-                result = await _userPicturesService.SaveUserPicturesAsync(entity, dto);
+                result = await _userPicturesService.UpdateUserProfileOrCoverPicturesAsync(entity, dto);
                 
                 if (!result.IsSucceeded) return result;
             }
@@ -113,7 +113,7 @@ namespace Aimo.Application.Users
                 _userRepository.Update(entity);
                 await _userRepository.CommitAsync();
 
-                await _userPicturesService.SaveUserPicturesAsync(entity, dto.UploadedPictures);
+                await _userPicturesService.UpdateUserProfileOrCoverPicturesAsync(entity, dto.UploadedPictures);
 
                 return result.SetData(entity.MapTo(dto)).Success();
             }
@@ -143,6 +143,8 @@ namespace Aimo.Application.Users
             }
         }
 
+       
+
         #endregion
     }
 
@@ -153,5 +155,6 @@ namespace Aimo.Application.Users
         ResultTask UpdatePicturesAsync(UserPictureDto[] dto);
         ResultTask UpdateAsync(UserDto viewDto);
         ResultTask DeleteAsync(params int[] ids);
+      
     }
 }

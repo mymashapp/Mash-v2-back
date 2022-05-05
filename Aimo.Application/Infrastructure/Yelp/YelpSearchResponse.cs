@@ -5,7 +5,7 @@ namespace Aimo.Data.Infrastructure.Yelp;
 #nullable disable
 public class YelpCardDto : Dto
 {
-    private SubCategory[] _subCategories = Array.Empty<SubCategory>();
+    private YelpSubCategory[] _subCategories = Array.Empty<YelpSubCategory>();
     
     public string Uid { get; set; }
     public string Name { get; set; }
@@ -29,7 +29,7 @@ public class YelpCardDto : Dto
     public DateTime? DateUTC { get; set; }
 
     public int CategoryId { get; set; }
-    public SubCategory[] SubCategories
+    public YelpSubCategory[] SubCategories
     {
         get
         {
@@ -52,7 +52,7 @@ internal record YelpRawResponsePicture
 
 
 
-public record SubCategory
+public record YelpSubCategory
 {
     public int CategoryId { get; set; }
     [JsonProperty("alias")] public string Alias { get; set; }
@@ -86,7 +86,7 @@ internal record Business
     [JsonProperty("review_count")] public int ReviewCount { get; set; }
     [JsonProperty("rating")] public double Rating { get; set; }
     [JsonProperty("phone")] public string PhoneNo { get; set; }
-    [JsonProperty("categories")] public SubCategory[] SubCategories { get; set; } = Array.Empty<SubCategory>();
+    [JsonProperty("categories")] public YelpSubCategory[] SubCategories { get; set; } = Array.Empty<YelpSubCategory>();
 
     [JsonProperty("location")] public Location Location { get; set; }
     [JsonProperty("coordinates")] public Coordinates Coordinates { get; set; }

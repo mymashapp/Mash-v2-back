@@ -87,8 +87,8 @@ public static class AutoMap
         try
         {
             return destination is null
-                ? AutoMap.Map(result.Data, result.Data.GetType(), destinationType)
-                : AutoMap.Map(result.Data, result.Data.GetType(), destinationType, destination);
+                ? Map(result.Data, result.Data.GetType(), destinationType)
+                : Map(result.Data, result.Data.GetType(), destinationType, destination);
         }
         catch (Exception e)
         {
@@ -101,7 +101,7 @@ public static class AutoMap
     {
         try
         {
-            return obj is null ? (T)AutoMap.Map<T>(result.Data) : (T)AutoMap.MapTo(result.Data, obj);
+            return obj is null ? (T)Map<T>(result.Data) : (T)MapTo(result.Data, obj);
         }
         catch (Exception e)
         {
@@ -119,7 +119,7 @@ public static class AutoMap
         result.From(other);
         try
         {
-            AutoMap.Map(other.Data, result.Data);
+            Map(other.Data, result.Data);
             result.AdditionalData = result.AdditionalData;
         }
         catch (AppException)

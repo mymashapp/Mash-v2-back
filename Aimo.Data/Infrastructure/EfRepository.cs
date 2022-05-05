@@ -98,10 +98,10 @@ internal partial class EfRepository : IRepository
 
         if (predicate is not null) query = query.Where(predicate);
 
-        if (isDeleted is not null && typeof(ISoftDeleteSupport).IsAssignableFrom(typeof(TEntity)))
+        if (isDeleted is not null && typeof(TEntity).GetInterface(nameof(ISoftDeleteSupport)) is not null /*typeof(ISoftDeleteSupport).IsAssignableFrom(typeof(TEntity))*/)
             query = query.Where(x => ((ISoftDeleteSupport)x).IsDeleted == isDeleted);
 
-        if (isActive is not null && typeof(IActiveInactiveSupport).IsAssignableFrom(typeof(TEntity)))
+        if (isActive is not null &&  typeof(TEntity).GetInterface(nameof(IActiveInactiveSupport)) is not null /*typeof(IActiveInactiveSupport).IsAssignableFrom(typeof(TEntity))*/)
             query = query.Where(x => ((IActiveInactiveSupport)x).IsActive == isActive);
 
         if (orderBy is not null)
@@ -157,6 +157,12 @@ internal partial class EfRepository : IRepository
 
     public virtual void RemoveBulk<TEntity>(IEnumerable<TEntity> entities) where TEntity : Entity
     {
+        var isSoftDelete = (typeof(TEntity).IsAssignableTo(typeof(ISoftDeleteSupport)));
+        if (!isSoftDelete)
+        {
+            EntitySet<TEntity>().RemoveRange(entities);
+            return;
+        }
         var softdeletables = EntitySet<TEntity>().OfType<ISoftDeleteSupport>();
         if (softdeletables.IsNotEmpty())
         {
@@ -165,11 +171,9 @@ internal partial class EfRepository : IRepository
                 deletable.IsDeleted = true;
                 Update((deletable as TEntity)!);
             }
-
-            return;
         }
 
-        EntitySet<TEntity>().RemoveRange(entities);
+       
     }
 
     public virtual void Remove<TEntity>(TEntity entity) where TEntity : Entity

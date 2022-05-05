@@ -1,5 +1,7 @@
 ﻿using Aimo.Application.Cards;
+using Aimo.Application.SwipeHistories;
 using Aimo.Domain.Cards;
+using Aimo.Domain.Chats;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aimo.Web.Controllers;
@@ -7,10 +9,12 @@ namespace Aimo.Web.Controllers;
 public class CardController : ApiBaseController
 {
     private readonly ICardService _cardService;
+    private readonly ISwipeHistoryService _swipeHistoryService;
 
-    public CardController(ICardService cardService)
+    public CardController(ICardService cardService,ISwipeHistoryService swipeHistoryService)
     {
         _cardService = cardService;
+        _swipeHistoryService = swipeHistoryService;
     }
     
     [HttpPost]
@@ -32,6 +36,12 @@ public class CardController : ApiBaseController
     public async Task<IActionResult> Update(CardDto dto)
     {
         return Result(await _cardService.UpdateAsync(dto));
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> ReMatch(ReMatchDto dto)
+    {
+        return Result(await _swipeHistoryService.ReMatchUser(dto));
     }
     [HttpPost]
     public async Task<IActionResult> Delete(int id)

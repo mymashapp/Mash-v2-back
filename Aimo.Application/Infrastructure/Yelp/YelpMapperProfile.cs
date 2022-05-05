@@ -1,5 +1,6 @@
 ﻿using Aimo.Core.Infrastructure;
 using Aimo.Domain.Cards;
+using Aimo.Domain.Categories;
 using Aimo.Domain.Users;
 using AutoMapper;
 
@@ -27,7 +28,7 @@ internal class YelpMapperProfile : Profile, IOrderedMapperProfile
             .ForMember(t=>t.SubCategories,i=>i.Ignore())
             .ForMember(t=>t.Category,i=>i.Ignore());
         
-        CreateMap<SubCategory, Aimo.Domain.Categories.SubCategory>();
+        CreateMap<YelpSubCategory,SubCategory>();
         CreateMap<YelpRawResponsePicture, CardPictureDto>()
             .ForMember(e => e.PictureUrl, d => d.MapFrom(x => x.CardPicture.Select(x => x)));
 

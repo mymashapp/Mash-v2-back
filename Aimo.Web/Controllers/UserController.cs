@@ -8,10 +8,12 @@ namespace Aimo.Web.Controllers;
 public class UserController : ApiBaseController
 {
     private readonly IUserService _userService;
+    private readonly IUserPicturesService _userPicturesService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService,IUserPicturesService userPicturesService)
     {
         _userService = userService;
+        _userPicturesService = userPicturesService;
     }
 
     /*[HttpGet]
@@ -44,5 +46,16 @@ public class UserController : ApiBaseController
     public async Task<IActionResult> UpdatePictures(UserPictureDto[] dto)
     {
         return Result(await _userService.UpdatePicturesAsync(dto));
+    } 
+    [HttpPost]
+    public async Task<IActionResult> AddMediaPictures(UserPictureDto dto)
+    {
+        return Result(await _userPicturesService.AddUserMediaPicture(dto));
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> DeletePictures(params int[] ids)
+    {
+        return Result(await _userPicturesService.DeletePicturesAsync(ids));
     }
 }

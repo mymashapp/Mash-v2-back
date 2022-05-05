@@ -1,4 +1,5 @@
 ﻿using Aimo.Data.Infrastructure;
+using Aimo.Domain.Chats;
 using Aimo.Domain.Data;
 using Aimo.Domain.SwipeHistories;
 using Aimo.Domain.Users;
@@ -26,9 +27,24 @@ internal partial class SwipeGroupRepository : EfRepository<SwipeGroup>, ISwipeGr
             //.Include(x=>x.Interests).Where(x=>x.Interests.Count(i=>swipeGroup.Interests.Any(si=>si.Id==i.Id))>=swipeGroupInterest)
             .Include(x=>x.User).ToArrayAsync();
     }
+
+    public async Task<SwipeGroup[]> ReMatching(SwipeGroup swipeGroup, int[] alreadyMatchUser)
+    {
+        return await AsNoTracking.Where(x => (swipeGroup.GroupType ==GroupType.Three || x.Gender == swipeGroup.Gender)
+                                             && x.GroupType == swipeGroup.GroupType
+                                             && x.AgeTo >= swipeGroup.AgeTo
+                                             && x.AgeFrom <= swipeGroup.AgeFrom
+                                             && x.CardId == swipeGroup.CardId
+                                             && x.UserId != swipeGroup.UserId
+                                             &&!alreadyMatchUser.Contains(x.UserId)
+            )
+            //.Include(x=>x.Interests).Where(x=>x.Interests.Count(i=>swipeGroup.Interests.Any(si=>si.Id==i.Id))>=swipeGroupInterest)
+            .Include(x=>x.User).ToArrayAsync();
+    }
 }
 
 public partial interface ISwipeGroupRepository : IRepository<SwipeGroup>
 {
     Task<SwipeGroup[]> GetMatching(SwipeGroup swipeGroup);
+    Task<SwipeGroup[]> ReMatching(SwipeGroup swipeGroup, int[] alreadyMatchUser);
 }

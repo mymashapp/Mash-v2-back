@@ -2,7 +2,7 @@
 
 namespace Aimo.Data;
 
-internal static class PagingExtension
+internal static class QueryExtension
 {
     #region Utilities
 

@@ -1,4 +1,5 @@
 ﻿using Aimo.Core.Infrastructure;
+using Aimo.Core.Specifications;
 using Aimo.Domain;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;
@@ -12,17 +13,21 @@ namespace Aimo.Application.Users
         private readonly IRepository<UserPicture> _picturesRepository;
         private readonly IAppFileProvider _fileProvider;
         private readonly UserDtoValidator _userDtoValidator;
+        private readonly UserPictureDtoValidator _userPictureDtoValidator;
 
 
-        public UserUserPicturesService(IRepository<UserPicture> picturesRepository, IAppFileProvider fileProvider,
-            UserDtoValidator userDtoValidator)
+        public UserUserPicturesService(IRepository<UserPicture> picturesRepository,
+            IAppFileProvider fileProvider,
+            UserDtoValidator userDtoValidator,
+            UserPictureDtoValidator userPictureDtoValidator)
         {
             _picturesRepository = picturesRepository;
             _fileProvider = fileProvider;
             _userDtoValidator = userDtoValidator;
+            _userPictureDtoValidator = userPictureDtoValidator;
         }
 
-        public async ResultTask SaveUserPicturesAsync(User entity, ICollection<UserPictureDto> pictures)
+        public async ResultTask UpdateUserProfileOrCoverPicturesAsync(User entity, ICollection<UserPictureDto> pictures)
         {
             var result = await _userDtoValidator
                 .ValidateResultAsync(new UserDto { UploadedPictures = pictures })
@@ -34,7 +39,12 @@ namespace Aimo.Application.Users
 
             if (!pictures.Any()) return result.Failure(ResultMessage.NullOrEmptyObject);
 
-            entity.Pictures.RemoveAll(x => pictures.Select(p => p.PictureType).Contains(x.PictureType));
+            //delete only profile and cover  not media
+            var picturesToDelete = pictures.Where(x => x.PictureType != PictureType.Media).Select(p => p.PictureType)
+                .Distinct();
+            var pic = entity.Pictures.Where(x => picturesToDelete.Contains(x.PictureType)).ToArray();
+
+            entity.Pictures.RemoveAll(x => picturesToDelete.Contains(x.PictureType));
 
             foreach (var picture in pictures)
             {
@@ -60,6 +70,13 @@ namespace Aimo.Application.Users
 
             await _picturesRepository.CommitAsync();
 
+            if (pictures.IsNotEmpty())
+                foreach (var p in pic)
+                {
+                    var deletePicturePath = _fileProvider.GetAbsolutePath(p.Url!);
+                    _fileProvider.DeleteFile(deletePicturePath);
+                }
+
             return result.Success();
         }
 
@@ -83,11 +100,62 @@ namespace Aimo.Application.Users
                 return Result.Create<UserPicture>().Exception(e);
             }
         }
+
+        public async ResultTask DeletePicturesAsync(int[] ids)
+        {
+            var result = Result.Create(false);
+            try
+            {
+                var entity = await _picturesRepository.FindBySpecAsync(new ByIdsSpec<UserPicture>(ids));
+
+                if (entity.IsNullOrEmpty())
+                    return result.Failure(ResultMessage.NotFound);
+
+                _picturesRepository.RemoveBulk(entity);
+                var affected = await _picturesRepository.CommitAsync();
+
+                if (entity.IsNotEmpty())
+                    foreach (var p in entity)
+                    {
+                        var deletePicturePath = _fileProvider.GetAbsolutePath(p.Url!);
+                        _fileProvider.DeleteFile(deletePicturePath);
+                    }
+
+
+                return result.SetData(affected > 0, affected).Success();
+            }
+            catch (Exception e)
+            {
+                return result.Exception(e);
+            }
+        }
+
+        public async ResultTask AddUserMediaPicture(UserPictureDto dto)
+        {
+            var result = await _userPictureDtoValidator.ValidateResultAsync(dto);
+            if (!result.IsSucceeded)
+                return result;
+
+            try
+            {
+                var entity = await UploadUserPictureAsync(dto);
+                await _picturesRepository.AddAsync(entity.Data);
+                var affected = await _picturesRepository.CommitAsync();
+                return result.SetData(entity.Data.MapTo(dto), affected).Success();
+            }
+            catch (Exception e)
+            {
+                return result.Exception(e);
+            }
+        }
     }
 
     public partial interface IUserPicturesService
     {
         Task<Result<UserPicture>> UploadUserPictureAsync(UserPictureDto dto);
-        ResultTask SaveUserPicturesAsync(User entity, ICollection<UserPictureDto> pictures);
+        ResultTask UpdateUserProfileOrCoverPicturesAsync(User entity, ICollection<UserPictureDto> pictures);
+
+        ResultTask DeletePicturesAsync(int[] dto);
+        ResultTask AddUserMediaPicture(UserPictureDto dto);
     }
 }

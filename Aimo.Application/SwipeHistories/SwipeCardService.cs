@@ -3,6 +3,7 @@ using Aimo.Data.Cards;
 using Aimo.Data.SwipeHistories;
 using Aimo.Data.Users;
 using Aimo.Domain.Chats;
+using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;
 using Aimo.Domain.SwipeHistories;
 using Aimo.Domain.Users;
@@ -15,6 +16,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
     private readonly ISwipeHistoryRepository _swipeHistoryRepository;
 
     private readonly ISwipeGroupRepository _swipeGroupRepository;
+    private readonly IRepository<ChatUser> _chatUserRepository;
 
     //private readonly IRepository<SwipeGroupInterest> _swipeGroupInterestRepository;
     private readonly IUserRepository _userRepository;
@@ -26,7 +28,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
 
     public SwipeHistoryService(ISwipeHistoryRepository swipeHistoryRepository,
         ISwipeGroupRepository swipeGroupRepository,
-        //  IRepository<SwipeGroupInterest> swipeGroupInterestRepository, 
+        IRepository<ChatUser> chatUserRepository,
         IUserRepository userRepository,
         IChatRepository chatRepository,
         ICardRepository cardRepository,
@@ -36,6 +38,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
     {
         _swipeHistoryRepository = swipeHistoryRepository;
         _swipeGroupRepository = swipeGroupRepository;
+        _chatUserRepository = chatUserRepository;
         // _swipeGroupInterestRepository = swipeGroupInterestRepository;
         _userRepository = userRepository;
         _chatRepository = chatRepository;
@@ -154,6 +157,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
     }
 
 
+    /*
     public async ResultTask UpdateAsync(SwipeHistoryDto dto)
     {
         var result = await _swipeHistoryDtoValidator.ValidateResultAsync(dto);
@@ -176,9 +180,58 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
             return result.Exception(e);
         }
     }
+    */
+
+    public async ResultTask ReMatchUser(ReMatchDto dto)
+    {
+        var oldChat = await _chatRepository.FirstOrDefaultAsync(x => x.CardId == dto.CardId && x.Id == dto.ChatId);
+
+        var result = Result.Create(oldChat);
+        if (oldChat is null)
+            return result.Failure("bed request");
+
+        var alreadyMatchUser =
+            await _chatUserRepository.FindAsync(x => x.ChatId == oldChat.Id && x.UserId != dto.CurrentUserId);
+        var alreadyMatchUserIds = alreadyMatchUser.Select(x => x.UserId).ToArray();
+
+        var swipeGroup = await _swipeGroupRepository.FirstOrDefaultAsync(
+            x => x.CardId == dto.CardId && x.UserId == dto.CurrentUserId);
+
+        if (swipeGroup is null)
+            return result.Failure("bed request");
 
 
-    public async ResultTask DeleteAsync(params int[] ids)
+        var matchingSwipeGroup = await _swipeGroupRepository.ReMatching(swipeGroup, alreadyMatchUserIds);
+
+        if (matchingSwipeGroup.Any())
+        {
+            var user = matchingSwipeGroup.FirstOrDefault()?.User;
+
+            if (user is null)
+                return result.Failure("bed request");
+
+            oldChat.Users.Add(user);
+            _chatRepository.Update(oldChat);
+
+
+            if (oldChat.Users.Count == (int)swipeGroup.GroupType)
+            {
+                var card = await _cardRepository.FirstOrDefaultAsync(x =>
+                    x.Id == swipeGroup.CardId && x.CardType == CardType.Own);
+                if (card != null) _cardRepository.Remove(card);
+                await _cardRepository.CommitAsync();
+            }
+
+            _chatUserRepository.RemoveBulk(alreadyMatchUser);
+          //  await _chatUserRepository.CommitAsync();
+            await _chatRepository.CommitAsync();
+        }
+
+        return result;
+    }
+
+
+    /*public async ResultTask DeleteAsync(params int[] ids)
     {
         var result = Result.Create(false);
         try
@@ -195,13 +248,16 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
         {
             return result.Exception(e);
         }
-    }
+    }*/
 }
 
 public partial interface ISwipeHistoryService
 {
     // Task<IdNameDto[]> GetAllSwipeHistory();
     ResultTask GetByIdAsync(int id);
+
     ResultTask CreateAsync(SwipeHistoryDto dto);
-    ResultTask UpdateAsync(SwipeHistoryDto viewDto);
+
+    // ResultTask UpdateAsync(SwipeHistoryDto viewDto);
+    ResultTask ReMatchUser(ReMatchDto dto);
 }

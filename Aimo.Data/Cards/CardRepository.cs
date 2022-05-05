@@ -115,7 +115,7 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
         return await AsNoTracking.ProjectTo<CardPictureDto>().ToArrayAsync();
     }
 
-    public async Task<Card[]> AddCardsIfNotExists(Card[] cards)
+    public async Task<Card[]> AddCardsIfNotExists(ICollection<Card> cards)
     {
         var existingCards = await AsNoTracking
             .Where(x => cards.Select(s => s.Alias).Contains(x.Alias))
@@ -129,7 +129,7 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
 
 public partial interface ICardRepository : IRepository<Card>
 {
-    Task<Card[]> AddCardsIfNotExists(Card[] cards);
+    Task<Card[]> AddCardsIfNotExists(ICollection<Card> cards);
     Task<CardListDto[]> SearchCards(CardSearchDto dto);
     Task<CardPictureDto[]> SearchCardsForPicture();
 }

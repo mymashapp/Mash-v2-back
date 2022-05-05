@@ -1,4 +1,5 @@
-﻿using Aimo.Core.Infrastructure;
+﻿using Aimo.Application.SwipeHistories;
+using Aimo.Core.Infrastructure;
 using Aimo.Domain.Infrastructure;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +12,12 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationProject(this IServiceCollection services,
         IConfiguration configuration)
     {
+        #region BackgroundTasks
+
+        services.AddHostedService<DeleteSwipeHistoryBackgroundTask>();
+
+        #endregion
+        
         AddAutoMapper();
         return services;
     }

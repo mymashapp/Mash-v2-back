@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Aimo.Application;
 using Aimo.Core;
@@ -21,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Aimo.Web.Framework.Extensions;
@@ -46,6 +48,8 @@ public static class ServiceCollectionExtensions
 
         //create default file provider
         CommonHelper.DefaultFileProvider = new DefaultFileProvider(builder.Environment);
+
+        builder.Logging.AddJsonConsole(o => o.JsonWriterOptions = new JsonWriterOptions { Indented = true }); // json format in logging
 
         //add options feature
         services.AddOptions();

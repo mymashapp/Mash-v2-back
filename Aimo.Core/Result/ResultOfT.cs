@@ -33,7 +33,7 @@ public partial record Result<T> : Result where T : new()
     public Result<T> SetData(T data, dynamic additionalData = null)
     {
         base.Data = data; 
-        base.AdditionalData = additionalData;
+        AdditionalData = additionalData;
         
         Data = data;
         return this;

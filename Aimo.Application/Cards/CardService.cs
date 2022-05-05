@@ -5,9 +5,9 @@ using Aimo.Data.Categories;
 using Aimo.Data.Infrastructure.Yelp;
 using Aimo.Domain;
 using Aimo.Domain.Cards;
+using Aimo.Domain.Categories;
 using Aimo.Domain.Infrastructure;
 using Aimo.Domain.Users;
-using SubCategory = Aimo.Domain.Categories.SubCategory;
 
 namespace Aimo.Application.Cards;
 
@@ -40,6 +40,18 @@ internal partial class CardService : ICardService
 
     #region Utilities
 
+    private async Task<string> UploadCardPictureAsync(string pictureUrl)
+    {
+        var image = new Base64Image(pictureUrl);
+
+        var fileName = $"{Guid.NewGuid()}.{image.Extension}";
+        var fileAbsPath = _appFileProvider.GetAbsolutePath(AppDefaults.CardPicturePath);
+        _appFileProvider.CreateDirectory(fileAbsPath);
+        await _appFileProvider.WriteAllBytesAsync(_appFileProvider.Combine(fileAbsPath, fileName), image.Bytes);
+        var url = $"{AppDefaults.CardPicturePath}{fileName}";
+        return url;
+    }
+
     #endregion
 
     #region Methods
@@ -50,7 +62,6 @@ internal partial class CardService : ICardService
 
         dto.ThrowIfNull();
 
-        //TODO: search in db first and return matching result
         var res = await SearchCardInDbAsync(dto);
         if (res.IsSucceeded)
             return res;
@@ -61,41 +72,67 @@ internal partial class CardService : ICardService
             return res.Failure(ResultMessage.NotFound);
 
         //TODO: await Parallel.ForEachAsync()
-        foreach (var subCat in subcategories)
+        await FetchCardsFromYelp(dto, subcategories, ct);
+
+        return await SearchCardInDbAsync(dto);
+
+        #endregion
+    }
+
+    private async Task FetchCardsFromYelp(CardSearchDto dto, ICollection<SubCategory> subcategories,
+        CancellationToken ct = default)
+    {
+        /*ParallelOptions parallelOptions = new()
+        {
+            MaxDegreeOfParallelism = 3
+        };*/
+
+        /*##foreach (var subCat in subcategories)*/
+        await Parallel.ForEachAsync(subcategories, /*parallelOptions,*/ct, async (subCat, cnToken) =>
         {
             dto.Category = subCat.Category.Name;
             dto.SubCategory = subCat.Alias;
             dto.CategoryId = subCat.CategoryId;
 
-            var searchResult = await _yelpHttpClient.SearchAsync(dto, ct);
+            var searchResult = await _yelpHttpClient.SearchAsync(dto, cnToken);
 
-            if (!searchResult.IsSucceeded) continue;
+            if (!searchResult.IsSucceeded)
+            {
+                //in Parallel.ForEachAsync return = continue
+                //##continue; 
+                return;
+            }
 
-            var cards = searchResult.Data.Select(c => CardResultSelector(c, subCat)).ToArray();
-            var cardForSearchPicture = await _cardRepository.AddCardsIfNotExists(cards);
-            await _cardRepository.CommitAsync(ct: ct);
-            await SearchCardPictureAsync(cardForSearchPicture);
-        }
+            var cards = await SaveCardsInDb(subcategories, searchResult, subCat, cnToken);
+            await SearchCardPictureAsync(cards);
+        });
+    }
 
-
-        return await SearchCardInDbAsync(dto);
-
-        #endregion
-
+    private async Task<Card[]> SaveCardsInDb(ICollection<SubCategory> subcategories,
+        ListResult<YelpCardDto> searchResult, SubCategory subCat, CancellationToken ct)
+    {
         #region local func
 
-        Card CardResultSelector(YelpCardDto c, SubCategory subCategory)
+        Card CardResultSelector(YelpCardDto card, Category category)
         {
-            var crd = c.Map<Card>();
-            crd.Category = subCategory.Category;
+            var crd = card.Map<Card>();
+            crd.Category = category;
             crd.SubCategories.AddRange(subcategories
-                .Where(x => c.SubCategories.Select(s => s.Alias)
+                .Where(x => card.SubCategories.Select(s => s.Alias)
                     .Contains(x.Alias))
             );
             return crd;
         }
 
         #endregion
+
+        var cards = new List<Card>();
+        
+        Parallel.ForEach(searchResult.Data, c => cards.Add(CardResultSelector(c, subCat.Category)));
+        
+        var cardForSearchPicture = await _cardRepository.AddCardsIfNotExists(cards);
+        await _cardRepository.CommitAsync(ct: ct);
+        return cardForSearchPicture;
     }
 
     private async ResultTask SearchCardPictureAsync(Card[] cards)
@@ -165,7 +202,8 @@ internal partial class CardService : ICardService
 
             if (dto.PictureUrl.IsNotEmpty())
             {
-                _appFileProvider.DeleteFile(entity?.PictureUrl!);
+                var deletePicturePath = _appFileProvider.GetAbsolutePath(entity?.PictureUrl!);
+                _appFileProvider.DeleteFile(deletePicturePath);
                 dto.PictureUrl = await UploadCardPictureAsync(dto.PictureUrl);
             }
 
@@ -179,18 +217,6 @@ internal partial class CardService : ICardService
         {
             return result.Exception(e);
         }
-    }
-
-    public async Task<string> UploadCardPictureAsync(string pictureUrl)
-    {
-        var image = new Base64Image(pictureUrl);
-
-        var fileName = $"{Guid.NewGuid()}.{image.Extension}";
-        var fileAbsPath = _appFileProvider.GetAbsolutePath(AppDefaults.CardPicturePath);
-        _appFileProvider.CreateDirectory(fileAbsPath);
-        await _appFileProvider.WriteAllBytesAsync(_appFileProvider.Combine(fileAbsPath, fileName), image.Bytes);
-        var url = $"{AppDefaults.CardPicturePath}{fileName}";
-        return url;
     }
 
     public async ResultTask DeleteAsync(params int[] ids)
