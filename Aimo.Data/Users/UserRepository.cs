@@ -11,9 +11,9 @@ internal class UserRepository : EfRepository<User>, IUserRepository
     {
     }
 
-    public async Task<User?> FirstOrDefaultAsync(Expression<Func<User, bool>>? predicate = null)
+    public override async Task<User?> FirstOrDefaultAsync(Expression<Func<User, bool>>? predicate = null, params Expression<Func<User, object>>[] include)
     {
-        return await FirstOrDefaultAsync(predicate, user => user.Pictures, user => user.Interests);
+        return await base.FirstOrDefaultAsync(predicate, user => user.Pictures, user => user.Interests);
     }
 }
 
