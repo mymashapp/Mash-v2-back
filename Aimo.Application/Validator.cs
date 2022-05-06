@@ -27,7 +27,7 @@ public abstract class Validator<TInstance> : AbstractValidator<TInstance>
     {
         if (context.InstanceToValidate is null)
         {
-            result.Errors.Add(new ValidationFailure("", L["Validation.NullOrEmptyObject"]));
+            result.Errors.Add(new ValidationFailure(string.Empty, L["Validation.NullOrEmptyObject"]));
             return false;
         }
 
@@ -37,7 +37,7 @@ public abstract class Validator<TInstance> : AbstractValidator<TInstance>
         if (intList.Any()) return true;
 
 
-        result.Errors.Add(new ValidationFailure("", L["Validation.SelectAtLeastOne"]));
+        result.Errors.Add(new ValidationFailure(string.Empty, L["Validation.SelectAtLeastOne"]));
         return false;
     }
 
@@ -86,7 +86,7 @@ public static class ValidatorExtension
         var ret = Result.Create(instance);
         if (results.IsValid) return ret.Success();
 
-        if (results.Errors.Count == 1 && results.Errors.First().PropertyName == "")
+        if (results.Errors.Count == 1 && results.Errors.First().PropertyName == string.Empty)
             return ret.Failure(results.Errors.First().ErrorMessage);
 
         //var L = EngineContext.Current.Resolve<ILocalizer<Validation>>();

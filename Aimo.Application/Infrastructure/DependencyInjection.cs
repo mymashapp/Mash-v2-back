@@ -14,10 +14,11 @@ public static class DependencyInjection
     {
         #region BackgroundTasks
 
+#if !DEBUG //#disable BackgroundTasks in development mode - un-comment for debugging
         services.AddHostedService<DeleteSwipeHistoryBackgroundTask>();
-
+#endif
         #endregion
-        
+
         AddAutoMapper();
         return services;
     }

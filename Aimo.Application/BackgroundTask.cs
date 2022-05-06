@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Aimo.Application;
 
-internal abstract partial class BackgroundTask : /*BackgroundService*/IHostedService, IBackgroundTask
+internal abstract partial class BackgroundTask : /*BackgroundService*/ IBackgroundTask, IHostedService
 {
     protected readonly IRepository<ScheduleTask> Repository;
     public string SystemType => GetType()?.FullName!;
@@ -36,9 +36,6 @@ internal abstract partial class BackgroundTask : /*BackgroundService*/IHostedSer
 
     public /*override*/ async Task StartAsync(CancellationToken cancellationToken)
     {
-#if DEBUG //#un-comment for debugging
-        return;
-#endif
         try
         {
             var currentTask = await Install();

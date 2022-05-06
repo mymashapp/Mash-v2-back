@@ -1,4 +1,5 @@
 ﻿#nullable disable
+#nullable enable annotations
 namespace Aimo.Core;
 
 [Serializable]

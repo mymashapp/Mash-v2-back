@@ -46,5 +46,8 @@ internal class CardMapperProfile : Profile, IOrderedMapperProfile
 
 
         CreateMap<YelpSubCategory, SubCategory>();
+        CreateMap<CardQuerySelector, CardListDto>()
+            .IncludeMembers(x => x.Card).ForMember(t => t.SwipeCount,
+                e => e.MapFrom(x => x.SwipeCount != null ? x.SwipeCount : 0));
     }
 }

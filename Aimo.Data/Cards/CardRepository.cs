@@ -33,7 +33,7 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
 
         var cardQueryExcludingSwipes =
             from cd in cardQuery
-            join h in swipeHistories on cd.Id equals h.CardId into j
+            join h in swipeHistories.Where(x => x.UserId == dto.UserId) on cd.Id equals h.CardId into j
             from h in j.DefaultIfEmpty()
 #pragma warning disable CS0472
             where h.CardId == null
@@ -98,15 +98,30 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
 
         #endregion
 
+        var ownCardQuery = cardQueryExcludingSwipes.Where(c => c.CardType == CardType.Own);
+
         var cardIds = await yelpCardQuery.Select(x => x.Id)
             .Union(groupOnCardQuery.Select(x => x.Id))
-            .Union(airBnbOnCardQuery.Select(x => x.Id)).ToArrayAsync();
+            .Union(airBnbOnCardQuery.Select(x => x.Id))
+            .Union(ownCardQuery.Select(x => x.Id))
+            .ToArrayAsync();
 
-        var ret = cardQuery.Where(x => cardIds.Contains(x.Id)).Include(x => x.SubCategories)
+        var cards = cardQuery.Where(x => cardIds.Contains(x.Id)).Include(x => x.SubCategories)
             .Include(x => x.CardPictures);
 
+        var swpCounts =
+            from swp in swipeHistories.Where(x => x.SwipeType == SwipeType.Right && cardIds.Contains(x.CardId))
+            group swp by swp.CardId
+            into g
+            select new { CardId = g.Key, Count = g.Count() };
 
-        return await ret.ProjectTo<CardListDto>()
+        var cardsWithCount =
+            from c in cards
+            from swp in swpCounts.Where(x => x.CardId == c.Id).DefaultIfEmpty()
+            select new CardQuerySelector { Card = c, SwipeCount = swp.Count };
+
+
+        return await cardsWithCount.ProjectTo<CardListDto>()
             .ToArrayAsync();
     }
 

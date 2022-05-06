@@ -15,6 +15,7 @@
     <ItemGroup>
       <PackageReference Include="FluentValidation" Version="10.3.6" />
       <PackageReference Include="Marvin.StreamExtensions" Version="1.2.0" />
+      <PackageReference Include="NullGuard.Fody" Version="3.1.0" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
