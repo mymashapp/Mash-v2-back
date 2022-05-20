@@ -27,7 +27,7 @@ internal partial class CardRepository : EfRepository<Card>, ICardRepository
         Expression<Func<Card, bool>> zipLike = x => EF.Functions.Like(x.ZipCode, wthOutLastDigit);
 
 
-        var cardQuery = AsNoTracking;
+        var cardQuery = AsNoTracking.Where(x => x.CreatedBy != dto.UserId);
         var categoryQuery = AsNoTracking<Category>();
         var swipeHistories = AsNoTracking<SwipeHistory>();
 

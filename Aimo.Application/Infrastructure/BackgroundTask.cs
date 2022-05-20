@@ -3,7 +3,7 @@ using Aimo.Domain.Data;
 using Aimo.Domain.ScheduleTasks;
 using Microsoft.Extensions.Hosting;
 
-namespace Aimo.Application;
+namespace Aimo.Application.Infrastructure;
 
 internal abstract partial class BackgroundTask : /*BackgroundService*/ IBackgroundTask, IHostedService
 {

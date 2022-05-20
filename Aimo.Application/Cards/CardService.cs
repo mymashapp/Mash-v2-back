@@ -104,7 +104,7 @@ internal partial class CardService : ICardService
             }
 
             var cards = await SaveCardsInDb(subcategories, searchResult, subCat, cnToken);
-            await SearchCardPictureAsync(cards);
+            await GetCardPictureAndSaveAsync(cards);
         });
     }
 
@@ -130,12 +130,12 @@ internal partial class CardService : ICardService
         
         Parallel.ForEach(searchResult.Data, c => cards.Add(CardResultSelector(c, subCat.Category)));
         
-        var cardForSearchPicture = await _cardRepository.AddCardsIfNotExists(cards);
+        var newCards = await _cardRepository.AddCardsIfNotExists(cards);
         await _cardRepository.CommitAsync(ct: ct);
-        return cardForSearchPicture;
+        return newCards;
     }
 
-    private async ResultTask SearchCardPictureAsync(Card[] cards)
+    private async ResultTask GetCardPictureAndSaveAsync(Card[] cards)
     {
         var cardPictureSearchDto = cards.Map<CardPictureDto[]>();
         foreach (var dto in cardPictureSearchDto)

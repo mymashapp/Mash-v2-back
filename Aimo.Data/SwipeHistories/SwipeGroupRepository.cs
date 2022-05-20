@@ -19,8 +19,8 @@ internal partial class SwipeGroupRepository : EfRepository<SwipeGroup>, ISwipeGr
        // var swipeGroupInterest = swipeGroup.Interests.Count / 2;
         return await AsNoTracking.Where(x => (swipeGroup.GroupType ==GroupType.Three || x.Gender == swipeGroup.Gender)
                                              && x.GroupType == swipeGroup.GroupType
-                                             && x.AgeTo >= swipeGroup.AgeTo
-                                             && x.AgeFrom <= swipeGroup.AgeFrom
+                                             && x.AgeTo <= swipeGroup.AgeTo
+                                             && x.AgeFrom >= swipeGroup.AgeFrom
                                              && x.CardId == swipeGroup.CardId
                                              && x.UserId != swipeGroup.UserId
                                              )

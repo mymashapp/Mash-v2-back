@@ -1,4 +1,5 @@
-﻿using Aimo.Data.SwipeHistories;
+﻿using Aimo.Application.Infrastructure;
+using Aimo.Data.SwipeHistories;
 using Aimo.Domain.Data;
 using Aimo.Domain.ScheduleTasks;
 using Aimo.Domain.Users;

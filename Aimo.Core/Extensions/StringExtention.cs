@@ -257,7 +257,7 @@ public static class StringExtensions
     [return: NotNull]
     public static string JoinToString<T>([NotNull] this IEnumerable<T> source, [NotNull] string separator)
     {
-        return string.Join(separator, source);
+        return string.Join(separator, source.Where(x => x is not null));
     }
 
     [return: NotNull]

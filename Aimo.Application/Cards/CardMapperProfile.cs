@@ -14,7 +14,10 @@ internal class CardMapperProfile : Profile, IOrderedMapperProfile
     public CardMapperProfile()
     {
         CreateMap<Card, CardDto>()
+            .ForMember(d => d.Address,
+                e => e.MapFrom(x => new string[] {x.Address1, x.Address2, x.Address3, x.City, x.State, x.ZipCode}.JoinToString(",")))
             .ReverseMap()
+            .ForMember(d => d.Address1, e => e.MapFrom(x =>x.Address))
             .ForMember(e => e.PictureUrl, opt => opt.Condition(d => d.PictureUrl.IsNotEmpty()))
             .AfterMap((d, e) =>
             {

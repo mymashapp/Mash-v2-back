@@ -120,24 +120,34 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
     {
         var matchingSwipeGroup = await _swipeGroupRepository.GetMatching(swipeGroup);
 
-        Chat? chat;
-        if (matchingSwipeGroup.Any())
+        var userIds = matchingSwipeGroup.Select(x => x.UserId).ToArray();
+        var chat = await _chatRepository.GetChatWithUser(userIds, history.CardId, swipeGroup.GroupType);
+       
+        if (matchingSwipeGroup.Any() && chat.Users.Count != (int)swipeGroup.GroupType)
         {
-            chat = await _chatRepository.FirstOrDefaultAsync(x =>
-                x.GroupType == swipeGroup.GroupType && x.CardId == history.CardId);
-
             if (chat is not null)
             {
-                chat.Users.Add(user!);
-                _chatRepository.Update(chat);
+                if (user is not null)
+                {
+                    var chatUser = new ChatUser
+                    {
+                        ChatId = chat.Id,
+                        UserId = user!.Id
+                    };
+                    await _chatUserRepository.AddAsync(chatUser);
+                }
             }
+
 
             if (chat != null && chat.Users.Count == (int)swipeGroup.GroupType)
             {
                 var card = await _cardRepository.FirstOrDefaultAsync(x =>
                     x.Id == swipeGroup.CardId && x.CardType == CardType.Own);
-                if (card != null) _cardRepository.Remove(card);
-                await _cardRepository.CommitAsync();
+                if (card != null)
+                {
+                    _cardRepository.Remove(card);
+                    await _cardRepository.CommitAsync();
+                }
             }
         }
         else
@@ -223,7 +233,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
             }
 
             _chatUserRepository.RemoveBulk(alreadyMatchUser);
-          //  await _chatUserRepository.CommitAsync();
+            //  await _chatUserRepository.CommitAsync();
             await _chatRepository.CommitAsync();
         }
 

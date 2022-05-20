@@ -11,3 +11,4 @@ public partial class Chat : Entity
     public Card Card { get; set; } 
     public List<User> Users { get; init; } = new();
 }
+
