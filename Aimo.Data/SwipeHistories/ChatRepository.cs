@@ -18,7 +18,7 @@ internal partial class ChatRepository : EfRepository<Chat>, IChatRepository
         return await FirstOrDefaultAsync(predicate, include: x => x.Users);
     }
 
-    public async Task<Chat> GetChatWithUser(int[] userId, int cardId, GroupType groupType)
+    public async Task<Chat?> GetChatWithUser(int[] userId, int cardId, GroupType groupType)
     {
         var chatUser = AsNoTracking<ChatUser>().Where(x => userId.Contains(x.UserId)).Select(x => x.ChatId);
         var chat = await Table.Where(
@@ -32,5 +32,5 @@ internal partial class ChatRepository : EfRepository<Chat>, IChatRepository
 
 public partial interface IChatRepository : IRepository<Chat>
 {
-    Task<Chat> GetChatWithUser(int[] userId, int cardId, GroupType groupType);
+    Task<Chat?> GetChatWithUser(int[] userId, int cardId, GroupType groupType);
 }
