@@ -1,5 +1,6 @@
 ﻿using Aimo.Core.Specifications;
 using Aimo.Data.Cards;
+using Aimo.Data.Chats;
 using Aimo.Data.SwipeHistories;
 using Aimo.Data.Users;
 using Aimo.Domain.Chats;
@@ -90,8 +91,13 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
     private async ResultTask AddSwipeGroup(SwipeHistory history)
     {
         var user = await _userRepository.FirstOrDefaultAsync(x => x.Id == history.UserId).ThrowIfNull();
-        var swipeGroupDto = user.MapTo(new SwipeGroupDto { CardId = history.CardId });
 
+        var now = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
+        var dob = int.Parse(user?.DateOfBirth.ToString("yyyyMMdd") ?? string.Empty);
+        var age = (now - dob) / 10000;
+        
+        var swipeGroupDto = user.MapTo(new SwipeGroupDto { CardId = history.CardId,CurrentUserAge = age});
+      
         var result = await _swipeGroupDtoValidator.ValidateResultAsync(swipeGroupDto);
         if (!result.IsSucceeded)
             return result;
@@ -99,6 +105,8 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
         try
         {
             var swipeGroup = swipeGroupDto.Map<SwipeGroup>();
+            swipeGroup.User = user;
+            swipeGroup.Interests = user?.Interests!;
             await _swipeGroupRepository.AddAsync(swipeGroup);
 
             var affected = await _swipeGroupRepository.CommitAsync();
@@ -122,7 +130,7 @@ internal partial class SwipeHistoryService : ISwipeHistoryService
 
         var userIds = matchingSwipeGroup.Select(x => x.UserId).ToArray();
         var chat = await _chatRepository.GetChatWithUser(userIds, history.CardId, swipeGroup.GroupType);
-       
+
         if (matchingSwipeGroup.Any() && chat.Users.Count != (int)swipeGroup.GroupType)
         {
             if (chat is not null)

@@ -1,3 +1,4 @@
+using Aimo.Application.Chats;
 using Aimo.Domain.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,7 +17,7 @@ public static class ApplicationBuilderExtensions
     /// <param name="configuration"></param>
     /// <param name="env"></param>
     public static void ConfigureRequestPipeline(this IApplicationBuilder app, IConfiguration configuration,
-        IWebHostEnvironment env)
+        IWebHostEnvironment env,string myAllowSpecificOrigins)
     {
         EngineContext.Current.SetServiceProvider(app.ApplicationServices);
 
@@ -31,7 +32,7 @@ public static class ApplicationBuilderExtensions
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
-
+        app.UseCors(myAllowSpecificOrigins);
         app.UseHealthChecks("/health");
         app.UseHttpsRedirection();
 
@@ -65,6 +66,8 @@ public static class ApplicationBuilderExtensions
         {
             endpoints.MapControllerRoute(name: "default",pattern: "api/{controller}/{action=Index}/{id?}");
             //endpoints.MapRazorPages();
+            
+            endpoints.MapHub<ChatHub>("/chats");
         });
     }
 

@@ -17,6 +17,7 @@ internal class SwipeHistoryMapperProfile : Profile, IOrderedMapperProfile
 
         CreateMap<User, SwipeGroupDto>()
             .ForMember(d => d.UserId, e => e.MapFrom(x => x.Id))
+            //.ForMember(d => d.UserInterests, e => e.MapFrom(x => x.Interests))
             .ForMember(d => d.AgeFrom, e => e.MapFrom(x => x.PreferenceAgeFrom))
             .ForMember(d => d.AgeTo, e => e.MapFrom(x => x.PreferenceAgeTo))
             .ForMember(d => d.GroupType, e => e.MapFrom(x => x.PreferenceGroupOf))

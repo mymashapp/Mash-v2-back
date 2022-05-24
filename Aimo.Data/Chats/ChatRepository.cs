@@ -5,7 +5,7 @@ using Aimo.Domain.Data;
 using Aimo.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
-namespace Aimo.Data.SwipeHistories;
+namespace Aimo.Data.Chats;
 
 internal partial class ChatRepository : EfRepository<Chat>, IChatRepository
 {

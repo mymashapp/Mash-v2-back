@@ -16,13 +16,14 @@ internal partial class SwipeGroupRepository : EfRepository<SwipeGroup>, ISwipeGr
 
     public async Task<SwipeGroup[]> GetMatching(SwipeGroup swipeGroup)
     {
+        
        // var swipeGroupInterest = swipeGroup.Interests.Count / 2;
         return await AsNoTracking.Where(x => (swipeGroup.GroupType ==GroupType.Three || x.Gender == swipeGroup.Gender)
                                              && x.GroupType == swipeGroup.GroupType
-                                             && x.AgeTo <= swipeGroup.AgeTo
-                                             && x.AgeFrom >= swipeGroup.AgeFrom
-                                             && x.CardId == swipeGroup.CardId
-                                             && x.UserId != swipeGroup.UserId
+                                             && x.CurrentUserAge <= swipeGroup.AgeTo
+                                                                   && x.CurrentUserAge >= swipeGroup.AgeFrom
+                                                                   && x.CardId == swipeGroup.CardId
+                                                                   && x.UserId != swipeGroup.UserId
                                              )
             //.Include(x=>x.Interests).Where(x=>x.Interests.Count(i=>swipeGroup.Interests.Any(si=>si.Id==i.Id))>=swipeGroupInterest)
             .Include(x=>x.User).ToArrayAsync();
@@ -32,7 +33,7 @@ internal partial class SwipeGroupRepository : EfRepository<SwipeGroup>, ISwipeGr
     {
         return await AsNoTracking.Where(x => (swipeGroup.GroupType ==GroupType.Three || x.Gender == swipeGroup.Gender)
                                              && x.GroupType == swipeGroup.GroupType
-                                             && x.AgeTo >= swipeGroup.AgeTo
+                                             && x.AgeTo >= swipeGroup.AgeTo 
                                              && x.AgeFrom <= swipeGroup.AgeFrom
                                              && x.CardId == swipeGroup.CardId
                                              && x.UserId != swipeGroup.UserId

@@ -15,6 +15,8 @@ public partial class SwipeGroup : Entity
     public GroupType GroupType { get; set; } = new();
     public User User { get; set; } 
     public Card Card { get; set; } 
+    public int CurrentUserAge { get; set; } 
+    
 
-    public List<Interest> Interests { get; init; } = new();
+    public List<Interest> Interests { get; set; }
 }

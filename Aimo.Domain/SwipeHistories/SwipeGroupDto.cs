@@ -8,10 +8,12 @@ public partial class SwipeGroupDto : Dto
     public int CardId { get; set; }
     public int AgeTo { get; set; }
     public int AgeFrom { get; set; }
+    public int CurrentUserAge { get; set; } 
+
     public Gender Gender { get; set; }
     public GroupType GroupType { get; set; }
     
-    public List<UserInterestDto> Interests { get; set; } = new();
+    public List<UserInterestDto> UserInterests { get; set; } = new();
 
 
 }

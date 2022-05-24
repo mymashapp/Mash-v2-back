@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
     /// <param name="builder">A builder for web applications and services</param>
     /// <param name="configuration"></param>
     public static void ConfigureApplicationServices(this IServiceCollection services, WebApplicationBuilder builder,
-        IConfiguration configuration)
+        IConfiguration configuration,string myAllowSpecificOrigins)
     {
         //let the operating system decide what TLS protocol version to use
         //see https://docs.microsoft.com/dotnet/framework/network-programming/tls
@@ -67,6 +67,16 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITypeHelper>(typeFinder);
 
         // Add services to the container.
+        
+        services.AddCors(options =>
+        {
+            options.AddPolicy(name: myAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins("*").AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
 
         #region WebApi
 
@@ -75,7 +85,9 @@ public static class ServiceCollectionExtensions
             .AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);;
 
-
+        //add signalR
+        services.AddSignalR(); 
+        
         // Customise default API behaviour
         services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
