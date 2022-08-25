@@ -17,7 +17,7 @@ namespace Aimo.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("ProductVersion", "6.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -65,6 +65,9 @@ namespace Aimo.Data.Migrations
 
                     b.Property<DateTime>("DateUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Discription")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -240,7 +243,11 @@ namespace Aimo.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CardId")
+                    b.Property<int?>("CardId")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChatType")
                         .HasColumnType("int");
 
                     b.Property<int>("GroupType")
@@ -264,8 +271,13 @@ namespace Aimo.Data.Migrations
                     b.Property<int>("ChatId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("SendOnUtc")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("SenderUserId")
                         .HasColumnType("int");
@@ -277,6 +289,8 @@ namespace Aimo.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ChatId");
+
+                    b.HasIndex("SendOnUtc");
 
                     b.HasIndex("SenderUserId");
 
@@ -309,6 +323,29 @@ namespace Aimo.Data.Migrations
                     b.ToTable("ChatUser", (string)null);
                 });
 
+            modelBuilder.Entity("Aimo.Domain.Chats.UserDeletedChat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDeletedChat", (string)null);
+                });
+
             modelBuilder.Entity("Aimo.Domain.Interests.Interest", b =>
                 {
                     b.Property<int>("Id")
@@ -327,6 +364,29 @@ namespace Aimo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Interest");
+                });
+
+            modelBuilder.Entity("Aimo.Domain.Notifications.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NotificationTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notification", (string)null);
                 });
 
             modelBuilder.Entity("Aimo.Domain.ScheduleTasks.ScheduleTask", b =>
@@ -448,6 +508,25 @@ namespace Aimo.Data.Migrations
                     b.ToTable("SwipeHistory", (string)null);
                 });
 
+            modelBuilder.Entity("Aimo.Domain.Users.BlockedUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BlockedUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BlockingUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlockedUser", (string)null);
+                });
+
             modelBuilder.Entity("Aimo.Domain.Users.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -474,16 +553,16 @@ namespace Aimo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("FCMToken")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("Gender")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Height")
-                        .HasColumnType("int");
+                    b.Property<float?>("Height")
+                        .HasColumnType("real");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsNew")
@@ -525,6 +604,9 @@ namespace Aimo.Data.Migrations
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
 
+                    b.Property<bool>("UserLocationEnabled")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Uid")
@@ -554,6 +636,33 @@ namespace Aimo.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserInterest");
+                });
+
+            modelBuilder.Entity("Aimo.Domain.Users.Entities.UserLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<double?>("Distance")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLocation");
                 });
 
             modelBuilder.Entity("Aimo.Domain.Users.Entities.UserPicture", b =>
@@ -680,6 +789,25 @@ namespace Aimo.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Aimo.Domain.Chats.UserDeletedChat", b =>
+                {
+                    b.HasOne("Aimo.Domain.Chats.Chat", "Chat")
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Aimo.Domain.Users.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Aimo.Domain.SwipeHistories.SwipeGroup", b =>
                 {
                     b.HasOne("Aimo.Domain.Cards.Card", "Card")
@@ -752,6 +880,15 @@ namespace Aimo.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Aimo.Domain.Users.Entities.UserLocation", b =>
+                {
+                    b.HasOne("Aimo.Domain.Users.Entities.User", null)
+                        .WithMany("UserLocations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Aimo.Domain.Users.Entities.UserPicture", b =>
                 {
                     b.HasOne("Aimo.Domain.Users.Entities.User", null)
@@ -774,6 +911,8 @@ namespace Aimo.Data.Migrations
             modelBuilder.Entity("Aimo.Domain.Users.Entities.User", b =>
                 {
                     b.Navigation("Pictures");
+
+                    b.Navigation("UserLocations");
                 });
 #pragma warning restore 612, 618
         }

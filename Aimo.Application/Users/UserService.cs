@@ -1,4 +1,7 @@
-﻿using Aimo.Core.Specifications;
+﻿using Aimo.Application.Chats;
+using Aimo.Core.Specifications;
+using Aimo.Data.Cards;
+using Aimo.Data.Chats;
 using Aimo.Data.Users;
 using Aimo.Domain.Data;
 using Aimo.Domain.Infrastructure;
@@ -14,31 +17,38 @@ namespace Aimo.Application.Users
         private readonly UserDtoValidator _userDtoValidator;
         private readonly IRepository<Interest> _interestRepository;
         private readonly IUserPicturesService _userPicturesService;
-
+        private readonly IBlockedUserRepository _blockedUserRepository;
+        private readonly IChatUserRepository _chatUserRepository;
+        private readonly IUserContext _userContext;
+        private readonly IChatMessageService _chatMessageService;
+        private readonly ICardRepository _cardRepository;
 
         public UserService(
             IUserRepository userRepository,
             UserDtoValidator userDtoValidator,
             IRepository<Interest> interestRepository,
-            IUserPicturesService userUserPicturesService)
+            IUserPicturesService userUserPicturesService,
+            IBlockedUserRepository blockedUserRepository, IChatUserRepository chatUserRepository,
+            IUserContext userContext, IChatMessageService chatMessageService, ICardRepository cardRepository)
         {
             _userRepository = userRepository;
             _userDtoValidator = userDtoValidator;
             _interestRepository = interestRepository;
             _userPicturesService = userUserPicturesService;
+            _blockedUserRepository = blockedUserRepository;
+            _chatUserRepository = chatUserRepository;
+            _userContext = userContext;
+            _chatMessageService = chatMessageService;
+            _cardRepository = cardRepository;
         }
 
         #region Utilities
-
-        
 
         #endregion
 
         #region Methods
 
-       
-
-        public async ResultTask GetOrCreateUserByUidAsync(string uid)
+        public async Task<Result<UserDto>> GetOrCreateUserByUidAsync(string uid)
         {
             var entity = await _userRepository.FirstOrDefaultAsync(x => x.Uid == uid);
 
@@ -77,7 +87,7 @@ namespace Aimo.Application.Users
                     return result.Failure(ResultMessage.NotFound);
 
                 result = await _userPicturesService.UpdateUserProfileOrCoverPicturesAsync(entity, dto);
-                
+
                 if (!result.IsSucceeded) return result;
             }
             catch (Exception e)
@@ -124,16 +134,22 @@ namespace Aimo.Application.Users
         }
 
 
-        public async ResultTask DeleteAsync(params int[] ids)
+        public async ResultTask DeleteAsync(int id)
         {
             var result = Result.Create(false);
             try
             {
-                var entity = await _userRepository.FindBySpecAsync(new ByIdsSpec<User>(ids));
+                var chatUser = await _chatUserRepository.GetChatUserForDelete(id);
+                //var entity = await _userRepository.FindBySpecAsync(new ByIdsSpec<User>(ids));
+                var entity = await _userRepository.FirstOrDefaultForDeleteAsync(x => x.Id == id);
 
-                if (!entity.IsNullOrEmpty())
+                if (entity is null)
                     return result.Failure(ResultMessage.NotFound);
-                _userRepository.RemoveBulk(entity);
+                _chatUserRepository.RemoveBulk(chatUser);
+                await _chatUserRepository.CommitAsync();
+                _userRepository.Remove(entity);
+                var userCards = await _cardRepository.FindAsync(x => x.CreatedBy == id);
+                _cardRepository.HardDeleteBulk(userCards);
                 var affected = await _userRepository.CommitAsync();
                 return result.SetData(affected > 0, affected).Success();
             }
@@ -143,18 +159,102 @@ namespace Aimo.Application.Users
             }
         }
 
-       
+        public async ResultTask ToggleUserLocationAsync(int userId)
+        {
+            var result = Result.Create();
+            var user = await _userRepository.FirstOrDefaultAsync(x => x.Id == userId);
+            if (user is null)
+                return result;
+
+            user.UserLocationEnabled = !user.UserLocationEnabled;
+            _userRepository.Update(user);
+            await _userRepository.CommitAsync();
+            return result.Success();
+        }
+
+        public async ResultTask BlockUserAsync(int blockUserId)
+        {
+            var currentUser = await _userContext.GetCurrentUserAsync(true);
+            var blockedUser = await _blockedUserRepository.FirstOrDefaultAsync(x =>
+                x.BlockingUserId == currentUser!.Id && x.BlockedUserId == blockUserId);
+            if (blockedUser is null)
+            {
+                var blockUser = new BlockedUser
+                {
+                    BlockedUserId = blockUserId,
+                    BlockingUserId = currentUser!.Id
+                };
+                await _blockedUserRepository.AddAsync(blockUser);
+                await _blockedUserRepository.CommitAsync();
+            }
+
+            var result = await _chatMessageService.RemoveChatHistoryOfBlockUser(currentUser.Id, blockUserId);
+            return result.Success();
+        }
+
+        public async ResultTask UnBlockUserAsync(int unBlockUserId)
+        {
+            var currentUser = await _userContext.GetCurrentUserAsync(true);
+            var blockedUser = await _blockedUserRepository.FirstOrDefaultAsync(x =>
+                x.BlockedUserId == unBlockUserId && x.BlockingUserId == currentUser!.Id);
+            if (blockedUser is not null)
+                _blockedUserRepository.Remove(blockedUser);
+
+            await _blockedUserRepository.CommitAsync();
+            return Result.Create().Success();
+        }
+
+        public async ResultTask GetAllBlockedUsersForCurrentUser()
+        {
+            var currentUser = await _userContext.GetCurrentUserAsync(true);
+            var blockedUsers = await _blockedUserRepository.FindAsync(x => x.BlockingUserId == currentUser!.Id);
+            if (blockedUsers is not null)
+            {
+                var users = await _userRepository.FindAsync(x =>
+                    blockedUsers.Select(x => x.BlockedUserId).Contains(x.Id));
+                if (users is not null)
+                    return Result.Create(await _userRepository.GetUserProfile(users.Map<List<UserDto>>())).Success();
+            }
+
+            return Result.Create().Failure(ResultMessage.NotFound);
+        }
+
+        public async ResultTask GetByIdAsync(int id)
+        {
+            var result = Result.Create(new UserDto());
+            var entity = await _userRepository.GetByIdAsync(id);
+            return entity is not null
+                ? result.SetData(entity.Map<UserDto>()).Success()
+                : result.Failure(ResultMessage.NotFound);
+        }
+
+        public async ResultTask SetUserFCMTokenAsync(string uid, string FCMtoken)
+        {
+            var user = await _userRepository.FirstOrDefaultAsync(x => x.Uid == uid);
+            var result = Result.Create();
+            if (user is null)
+                return result.Failure(ResultMessage.NotFound);
+
+            user.FCMToken = FCMtoken;
+            _userRepository.Update(user);
+            await _userRepository.CommitAsync();
+            return result.Success();
+        }
 
         #endregion
     }
 
     public partial interface IUserService
     {
-        //ResultTask GetById(int id);
-        ResultTask GetOrCreateUserByUidAsync(string uid);
+        ResultTask GetByIdAsync(int id);
+        Task<Result<UserDto>> GetOrCreateUserByUidAsync(string uid);
         ResultTask UpdatePicturesAsync(UserPictureDto[] dto);
         ResultTask UpdateAsync(UserDto viewDto);
-        ResultTask DeleteAsync(params int[] ids);
-      
+        ResultTask DeleteAsync(int id);
+        ResultTask ToggleUserLocationAsync(int userId);
+        ResultTask BlockUserAsync(int blockUserId);
+        ResultTask UnBlockUserAsync(int unBlockUserId);
+        ResultTask GetAllBlockedUsersForCurrentUser();
+        ResultTask SetUserFCMTokenAsync(string uuid, string FCMtoken);
     }
 }

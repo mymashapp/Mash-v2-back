@@ -4,6 +4,8 @@ public partial class AppSetting
 {
     public YelpApiSetting Yelp { get; set; }
     public int ItemCountPerProvider { get; set; }
+    public string FcmSenderId { get; set; }
+    public string FcmServerKey { get; set; }
 }
 
 public class YelpApiSetting

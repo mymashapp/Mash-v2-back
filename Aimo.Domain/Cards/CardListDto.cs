@@ -7,6 +7,7 @@ public partial class CardListDto : Dto
     public string Name { get; set; }
     public string Alias { get; set; }
     public string? PictureUrl { get; set; }
+    public string? Discription { get; set; }
     public string Url { get; set; }
     public int? ReviewCount { get; set; }
     public float? Rating { get; set; }

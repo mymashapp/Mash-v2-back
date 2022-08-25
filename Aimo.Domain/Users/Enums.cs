@@ -16,8 +16,14 @@ public enum Gender
 
 public enum GroupType
 {
+    None=1,
     Two = 2,
     Three = 3,
+}
+public enum ChatType
+{
+    Card = 1,
+    Private = 2,
 }
 
 public enum CardType
@@ -32,4 +38,10 @@ public enum SwipeType
 {
     Left = 0,
     Right = 1
+}
+
+public enum NotificationType
+{
+    ProfileMatch = 1,
+    cardExpire=2,
 }

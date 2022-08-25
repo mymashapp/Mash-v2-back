@@ -11,14 +11,23 @@ namespace Aimo.Data.Infrastructure;
 
 public partial class EfDataContext : IDesignTimeDbContextFactory<EfDataContext>
 {
+    private const string ConnectionString = "Server=mashv2.cydqrnrxyhdw.us-east-2.rds.amazonaws.com;Database=MashAppDB;User Id=admin;Password=mashv2pwd";
+
+    public static readonly  Action<DbContextOptionsBuilder>? ContextOptionsAction = options =>
+        options.UseSqlServer(ConnectionString);
+    
+    public static readonly DbContextOptionsBuilder<EfDataContext> ContextOptions =
+        new DbContextOptionsBuilder<EfDataContext>()
+        //.UseSqlServer("Server=.;Database=MashAppDB;User Id=sa;Password=admin@123").Options);
+        .UseSqlServer(ConnectionString!);
+
+
     public EfDataContext()
     {
     }
 
     public EfDataContext CreateDbContext(string[] args) =>
-        new(new DbContextOptionsBuilder<EfDataContext>()
-            //.UseSqlServer("Server=.;Database=MashAppDB;User Id=sa;Password=admin@123").Options);
-            .UseSqlServer("Server=mashv2.cydqrnrxyhdw.us-east-2.rds.amazonaws.com;Database=MashAppDB;User Id=admin;Password=mashv2pwd").Options);
+        new(ContextOptions.Options);
 }
 
 #endregion

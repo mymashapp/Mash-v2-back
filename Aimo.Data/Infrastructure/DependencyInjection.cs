@@ -13,6 +13,7 @@ public static class DependencyInjection
         services.AddScoped<IDataContext>(provider => provider.GetRequiredService<EfDataContext>());
         services.AddScoped(typeof(IRepository), typeof(EfRepository));
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+        services.AddDbContextFactory<EfDataContext>(EfDataContext.ContextOptionsAction);
 
         return services;
     }

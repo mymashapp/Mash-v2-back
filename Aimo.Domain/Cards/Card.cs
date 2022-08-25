@@ -8,6 +8,7 @@ public partial class Card : AuditableEntity, ISoftDeleteSupport
 {
     public string Name { get; set; }
     public string Alias { get; set; }
+    public string? Discription { get; set; }
     public string? PictureUrl { get; set; }
     public string Url { get; set; }
     public int? ReviewCount { get; set; }

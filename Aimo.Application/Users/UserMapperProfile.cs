@@ -15,22 +15,23 @@ internal class UserMapperProfile : Profile, IOrderedMapperProfile
         CreateMap<User, UserDto>()
             .ForMember(d => d.UploadedPictures, opt => opt.Ignore())
             .ForMember(d => d.Pictures, e =>
-                e.MapFrom(x => x.Pictures))
+                e.MapFrom(x => x.Pictures)).MaxDepth(3)
+
             .ReverseMap()
             .ForMember(d => d.Interests, opt => opt.Ignore())
             .ForMember(e => e.Pictures, opt => opt.Ignore());
 
         CreateMap<Interest, IdNameDto>().ReverseMap();
+        CreateMap<UserLocation, UserLocationDto>().ReverseMap();
 
         CreateMap<Interest, UserInterestDto>()
-            .ForMember(d => d.InterestName,
+             .ForMember(d => d.InterestName,
                 e => e.MapFrom(x => x.Name))
             .ForMember(d => d.InterestId,
                 e => e.MapFrom(x => x.Id))
             .ReverseMap();
         CreateMap<UserPicture, UserPictureDto>()
-            .ForMember(d => d.PictureUrl,
-                e => e.MapFrom(x => x.Url))
+            .ForMember(d => d.PictureUrl, e => e.MapFrom(x => x.Url))
             .ReverseMap();
     }
 }

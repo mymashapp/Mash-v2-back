@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Aimo.Web.Framework;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Aimo.Web.Controllers;
 
-[ApiController, /*AppAuthorize,*/ Route("api/[controller]/[action]")]
+[ApiController, AppAuthorize, Route("api/[controller]/[action]")]
 public class ApiBaseController : ControllerBase
 {
     /*protected async Task<IActionResult> ResultAsync(ResultTask resultTask)

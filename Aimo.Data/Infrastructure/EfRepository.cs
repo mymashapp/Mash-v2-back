@@ -14,7 +14,7 @@ internal partial class EfRepository : IRepository
 
     public EfRepository(IDataContext context) => _dataContext = context;
 
-    private DbSet<TEntity> EntitySet<TEntity>() where TEntity : Entity =>
+    protected DbSet<TEntity> EntitySet<TEntity>() where TEntity : Entity =>
         (_dataContext as EfDataContext)!.Set<TEntity>(); //TODO: minor fix interface
 
     protected IQueryable<TEntity> AsNoTracking<TEntity>() where TEntity : Entity => EntitySet<TEntity>().AsNoTracking();

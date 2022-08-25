@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">Collection of service descriptors</param>
     /// <param name="builder">A builder for web applications and services</param>
     /// <param name="configuration"></param>
+    /// <param name="myAllowSpecificOrigins"></param>
     public static void ConfigureApplicationServices(this IServiceCollection services, WebApplicationBuilder builder,
         IConfiguration configuration,string myAllowSpecificOrigins)
     {
@@ -71,10 +72,25 @@ public static class ServiceCollectionExtensions
         services.AddCors(options =>
         {
             options.AddPolicy(name: myAllowSpecificOrigins,
-                builder =>
+                x =>
                 {
-                    builder.WithOrigins("*").AllowAnyHeader()
-                        .AllowAnyMethod();
+                    x //.AllowAnyOrigin()//
+                        .WithOrigins(
+                            "https://localhost:5001/",
+                            "http://localhost:5000/",
+                            /*"http://uttamughareja-001-site4.ftempurl.com/",
+                            "https://uttamughareja-001-site4.ftempurl.com/",
+                            "ws://uttamughareja-001-site4.ftempurl.com/",
+                            "wss://uttamughareja-001-site4.ftempurl.com/",*/
+                            "https://backend.mymashapp.com/",
+                            "http://backend.mymashapp.com/",
+                            "wss://backend.mymashapp.com/",
+                            "ws://backend.mymashapp.com/"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod().SetIsOriginAllowed(origin => true)
+                        .AllowCredentials();
+
                 });
         });
 
@@ -83,10 +99,16 @@ public static class ServiceCollectionExtensions
         services.AddControllers()
             .AddFluentValidation(x => x.AutomaticValidationEnabled = false)
             .AddJsonOptions(x =>
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);;
-
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+           
         //add signalR
-        services.AddSignalR(); 
+        services.AddSignalR(e => {
+            e.MaximumReceiveMessageSize = null;
+            e.EnableDetailedErrors = true;
+           // e.KeepAliveInterval = TimeSpan.FromMinutes(60);
+        }).AddJsonProtocol(options => {
+            options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+        });; 
         
         // Customise default API behaviour
         services.Configure<ApiBehaviorOptions>(options =>
@@ -143,7 +165,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IAppFileProvider, DefaultFileProvider>();
         services.AddScoped<IUserContext, WebUserContext>(); //TODO: move to framework dependency injection class
-
+        services.AddMvc(o => o.Filters.Add(typeof(GlobalExceptionHandler)));
         services.AddHttpClients();
 
         //create engine and configure service provider

@@ -20,7 +20,10 @@ public class CardController : ApiBaseController
     [HttpPost]
     public async Task<IActionResult> Create(CardDto dto)
     {
-        return Result(await _cardService.CreateAsync(dto));
+        var result = await _cardService.CreateAsync(dto);
+        //add card RightSwipe
+        await _swipeHistoryService.CardRightSwipe(result.Data);
+        return Result(result);
     }
     [HttpGet]
     public async Task<IActionResult> GetById(int id)
@@ -47,5 +50,11 @@ public class CardController : ApiBaseController
     public async Task<IActionResult> Delete(int id)
     {
         return Result(await _cardService.DeleteAsync(id));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ReportCard(int cardId)
+    {
+        return Result(await _cardService.ReportCardAsync(cardId));
     }
 }

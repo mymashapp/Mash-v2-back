@@ -1,4 +1,5 @@
-﻿using Aimo.Application.SwipeHistories;
+﻿using Aimo.Application.Cards;
+using Aimo.Application.SwipeHistories;
 using Aimo.Core.Infrastructure;
 using Aimo.Domain.Infrastructure;
 using AutoMapper;
@@ -16,7 +17,9 @@ public static class DependencyInjection
 
 #if !DEBUG //#disable BackgroundTasks in development mode - un-comment for debugging
         services.AddHostedService<DeleteSwipeHistoryBackgroundTask>();
+        services.AddHostedService<CardExpireNotificationBackgroundTask>();
 #endif
+
         #endregion
 
         AddAutoMapper();

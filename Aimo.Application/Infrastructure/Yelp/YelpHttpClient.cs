@@ -34,7 +34,7 @@ public class YelpHttpClient : HttpClientBase, IYelpHttpClient
 
     public async Task<ListResult<YelpCardDto>> SearchAsync(CardSearchDto dto, CancellationToken ct = default)
     {
-        var result = Result.Create(new YelpCardDto[] { });
+        var result = Result.Create(Array.Empty<YelpCardDto>());
         try
         {
             var token = new YelpAuthToken { AccessToken = _appSetting.Yelp.Token };
@@ -68,7 +68,7 @@ public class YelpHttpClient : HttpClientBase, IYelpHttpClient
     public async Task<ListResult<CardPictureDto>> SearchCardPictureAsync(CardPictureDto dto,
         CancellationToken ct = default)
     {
-        var result = Result.Create(new CardPictureDto[] { });
+        var result = Result.Create(Array.Empty<CardPictureDto>());
         try
         {
             var token = new YelpAuthToken { AccessToken = _appSetting.Yelp.Token };

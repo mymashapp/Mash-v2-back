@@ -6,8 +6,9 @@ namespace Aimo.Domain.Chats;
 
 public partial class Chat : Entity
 {
-    public int CardId { get; set; }
+    public int? CardId { get; set; }
     public GroupType GroupType { get; set; }
+    public ChatType ChatType { get; set; }
     public Card Card { get; set; } 
     public List<User> Users { get; init; } = new();
 }

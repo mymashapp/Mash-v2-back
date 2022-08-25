@@ -127,9 +127,9 @@ internal partial class CardService : ICardService
         #endregion
 
         var cards = new List<Card>();
-        
+
         Parallel.ForEach(searchResult.Data, c => cards.Add(CardResultSelector(c, subCat.Category)));
-        
+
         var newCards = await _cardRepository.AddCardsIfNotExists(cards);
         await _cardRepository.CommitAsync(ct: ct);
         return newCards;
@@ -155,7 +155,7 @@ internal partial class CardService : ICardService
     private async ResultTask SearchCardInDbAsync(CardSearchDto dto)
     {
         var resp = await _cardRepository.SearchCards(dto);
-        return resp.Any() ? Result.Create(resp).Success() : Result.Create().Failure(ResultMessage.NotFound);
+        return resp.Any() ? Result.Create(resp).Success() : Result.Create().Failure(ResultMessage.ComeBack);
     }
 
     public async ResultTask GetByIdAsync(int id)
@@ -167,7 +167,7 @@ internal partial class CardService : ICardService
             : result.Failure(ResultMessage.NotFound);
     }
 
-    public async ResultTask CreateAsync(CardDto dto)
+    public async Task<Result<CardDto>> CreateAsync(CardDto dto)
     {
         var result = await _cardDtoValidator.ValidateResultAsync(dto);
         if (!result.IsSucceeded)
@@ -179,6 +179,7 @@ internal partial class CardService : ICardService
             var entity = dto.Map<Card>();
             await _cardRepository.AddAsync(entity);
             var affected = await _cardRepository.CommitAsync();
+            
             return result.SetData(entity.MapTo(dto), affected).Success();
         }
         catch (Exception e)
@@ -238,14 +239,34 @@ internal partial class CardService : ICardService
         }
     }
 
+    public async ResultTask ReportCardAsync(int cardId)
+    {
+        var card = await _cardRepository.FirstOrDefaultAsync(x => x.Id == cardId);
+        if (card is not null && card.CardType == CardType.Own)
+        {
+            _cardRepository.Remove(card);
+            await _cardRepository.CommitAsync();
+            return Result.Create().Success();
+        }
+
+        return Result.Create().Failure(ResultMessage.NotFound);
+    }
+
+    public async Task<string> GetCardNameByIdAsync(int cardId)
+    {
+        return (await _cardRepository.FirstOrDefaultAsync(x => x.Id == cardId))?.Name ?? string.Empty;
+    }
+
     #endregion
 }
 
 public partial interface ICardService
 {
     ResultTask GetByIdAsync(int id);
-    ResultTask CreateAsync(CardDto dto);
+    Task<Result<CardDto>> CreateAsync(CardDto dto);
     ResultTask UpdateAsync(CardDto viewDto);
     ResultTask DeleteAsync(params int[] ids);
     ResultTask GetCardsAsync(CardSearchDto dto, CancellationToken ct = default);
+    ResultTask ReportCardAsync(int cardId);
+    Task<string> GetCardNameByIdAsync(int dtoCardId);
 }

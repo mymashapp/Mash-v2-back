@@ -46,6 +46,6 @@ internal partial class DeleteSwipeHistoryBackgroundTask : BackgroundTask
         SystemName = SystemName,
         SystemType = SystemType,
         IsActive = true,
-        IntervalInSeconds = TimeSpan.FromHours(24).TotalSeconds
+        IntervalInSeconds = TimeSpan.FromSeconds(48).TotalSeconds
     };
 }
